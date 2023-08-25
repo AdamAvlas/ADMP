@@ -6,7 +6,24 @@
         xmlns:local="clr-namespace:ADMP"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
+    <Grid x:Name="MainGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="9*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        
+        <Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="0">
+            <Image Source="/media/placeholder.png"></Image>
+        </Border>
+        <Border BorderBrush="Blue" BorderThickness="2" Grid.Column="0" Grid.Row="1">
+            <DockPanel Background="DarkBlue">
+                <Button>
+                    <TextBlock FontSize="25" FontWeight="Bold">PLAY/PAUSE</TextBlock>
+                </Button>
+            </DockPanel>
+        </Border>
     </Grid>
 </Window>
