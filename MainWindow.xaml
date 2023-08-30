@@ -11,17 +11,33 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="9*"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="12*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
+
+        <Menu VerticalAlignment="Center">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open" Click="TopMenuOpenFile" />
+                <Separator />
+                <MenuItem Header="_Quit" />
+            </MenuItem>
+        </Menu>
         
-        <Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="0">
+        <Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1">
             <Image Source="/media/placeholder.png"></Image>
         </Border>
-        <Border BorderBrush="Blue" BorderThickness="2" Grid.Column="0" Grid.Row="1">
+        
+        <Border BorderBrush="Blue" BorderThickness="2" Grid.Column="0" Grid.Row="2">
             <DockPanel Background="DarkBlue">
                 <Button>
+                    <TextBlock FontSize="25" FontWeight="Bold">PREV/PAUSE</TextBlock>
+                </Button>
+                <Button>
                     <TextBlock FontSize="25" FontWeight="Bold">PLAY/PAUSE</TextBlock>
+                </Button>
+                <Button>
+                    <TextBlock FontSize="25" FontWeight="Bold">NEXT</TextBlock>
                 </Button>
             </DockPanel>
         </Border>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,12 @@ namespace ADMP
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void TopMenuOpenFile(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Opening file...");
+            TopMenuHandler.
         }
     }
 }
