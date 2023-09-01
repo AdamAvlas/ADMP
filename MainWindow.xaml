@@ -28,10 +28,10 @@
         <Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1">
             <!--<Image Source="/media/placeholder.png"></Image>-->
             <vlcsw:VideoView x:Name="MainVideoPlayer">
-                <DockPanel>
-                    <DockPanel DockPanel.Dock="Top">
-                        <TextBlock DockPanel.Dock="Left">filename</TextBlock>
-                        <TextBlock DockPanel.Dock="Right">duration</TextBlock>
+                <DockPanel LastChildFill="False">
+                    <DockPanel x:Name="TopOverlay" LastChildFill="False" DockPanel.Dock="Top">
+                        <TextBlock x:Name="TopOverlayFilenameText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Left">filename</TextBlock>
+                        <TextBlock x:Name="TopOverlayDurationText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Right">duration</TextBlock>
                     </DockPanel>
                     <Border DockPanel.Dock="Bottom" Margin="1 25">
                         <Slider x:Name="MainProgressBar"></Slider>
@@ -41,7 +41,7 @@
         </Border>
         
         <Border BorderBrush="Blue" BorderThickness="2" Grid.Column="0" Grid.Row="2">
-            <DockPanel Background="DarkBlue">
+            <DockPanel LastChildFill="False" Background="DarkBlue">
                 <Button x:Name="PreviousButton" Margin="2 10">
                     <TextBlock FontSize="24" FontWeight="Bold">PREV/PAUSE</TextBlock>
                 </Button>

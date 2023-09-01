@@ -46,7 +46,23 @@ namespace ADMP
 
                     mediaPlayer.Play(media);
 
+                    string[] fileNames = filePath.Split("\\");
+                    string fileName = fileNames[fileNames.Length - 1];
+
+                    TimeSpan mediaDuration = TimeSpan.FromMilliseconds(media.Duration);
+                    string mediaDurationStr = "";
+                    if (mediaDuration.Minutes >= 60)
+                    {
+                        mediaDurationStr = $"{mediaDuration.Hours}:{mediaDuration.Minutes}:{mediaDuration.Seconds}";
+                    }
+                    else
+                    {
+                        mediaDurationStr = $"{mediaDuration.Minutes.ToString()}:{mediaDuration.Seconds}";
+                    }
+
                     mainWindow.PlayPauseButtonText.Text = "PAUSE";
+                    mainWindow.TopOverlayFilenameText.Text = fileName;
+                    mainWindow.TopOverlayDurationText.Text = mediaDurationStr;
                 }
             }
             else
