@@ -21,27 +21,35 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Click="TopMenuOpenFile" />
                 <Separator />
-                <MenuItem Header="_Quit" />
+                <MenuItem Header="_Close app"  Click="AppQuit" />
             </MenuItem>
         </Menu>
         
         <Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1">
             <!--<Image Source="/media/placeholder.png"></Image>-->
             <vlcsw:VideoView x:Name="MainVideoPlayer">
-                <TextBlock>This is a text inside the VideoView element</TextBlock>
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Top">
+                        <TextBlock DockPanel.Dock="Left">filename</TextBlock>
+                        <TextBlock DockPanel.Dock="Right">duration</TextBlock>
+                    </DockPanel>
+                    <Border DockPanel.Dock="Bottom" Margin="1 25">
+                        <Slider x:Name="MainProgressBar"></Slider>
+                    </Border>
+                </DockPanel>
             </vlcsw:VideoView>
         </Border>
         
         <Border BorderBrush="Blue" BorderThickness="2" Grid.Column="0" Grid.Row="2">
             <DockPanel Background="DarkBlue">
-                <Button x:Name="PreviousButton">
-                    <TextBlock FontSize="25" FontWeight="Bold">PREV/PAUSE</TextBlock>
+                <Button x:Name="PreviousButton" Margin="2 10">
+                    <TextBlock FontSize="24" FontWeight="Bold">PREV/PAUSE</TextBlock>
                 </Button>
-                <Button x:Name="PlayPauseButton" Click="PlayTest">
-                    <TextBlock FontSize="25" FontWeight="Bold">PLAY/PAUSE</TextBlock>
+                <Button x:Name="PlayPauseButton" Click="PlayPause">
+                    <TextBlock x:Name="PlayPauseButtonText" FontSize="24" FontWeight="Bold">PLAY</TextBlock>
                 </Button>
                 <Button>
-                    <TextBlock FontSize="25" FontWeight="Bold">NEXTBUTT</TextBlock>
+                    <TextBlock FontSize="24" FontWeight="Bold">NEXTBUTT</TextBlock>
                 </Button>
             </DockPanel>
         </Border>

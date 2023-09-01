@@ -23,49 +23,63 @@ namespace ADMP
     /// </summary>
     public partial class MainWindow : Window
     {
+        public BottomBarHandler bottomBarHandler;
+        public TopMenuHandler topMenuHandler;
+        public LibVLC LibVLCObj = new LibVLC();
+        
         public MainWindow()
         {
             InitializeComponent();
+
+            this.MainVideoPlayer.MediaPlayer = new MediaPlayer(LibVLCObj);
+            
+            bottomBarHandler = new BottomBarHandler(this);
+            topMenuHandler = new TopMenuHandler(this, this.MainVideoPlayer.MediaPlayer);
+
         }
 
         private void TopMenuOpenFile(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("Opening file...");
-            //TopMenuHandler.
+            topMenuHandler.OpenFile();
         }
 
-        private async void PlayTest(object sender, RoutedEventArgs e)
+        //private async void PlayTest(object sender, RoutedEventArgs e)
+        //{
+        //    string testFilePath = "C:\\Users\\adam\\source\\repos\\ADMP\\media\\tsnuz.mp4";
+
+        //    Debug.WriteLine("Opening file: " + testFilePath);
+
+        //    try
+        //    {
+        //        using (var libvlc = new LibVLC())
+        //        {
+        //            //var videoPlayer = MainVideoPlayer.MediaPlayer;
+        //            //MainVideoPlayer.MediaPlayer = new MediaPlayer(libvlc);
+
+        //            var testMedia = new Media(libvlc, testFilePath, FromType.FromPath);
+        //            await testMedia.Parse();
+
+        //            Debug.WriteLine("media duration: " + testMedia.Duration);
+
+        //            MainVideoPlayer.MediaPlayer.Play(testMedia);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine("Sorry vole eror: " + ex.Message + " // " + ex.StackTrace);
+        //    }
+
+
+        //}
+
+        public void PlayPause(object sender, RoutedEventArgs e)
         {
-            string testFilePath = "C:\\Users\\adam\\source\\repos\\ADMP\\media\\tsnuz.mp4";
-
-            Debug.WriteLine("Opening file: " + testFilePath);
-
-            try
-            {
-                using (var libvlc = new LibVLC())
-                {
-                    //var videoPlayer = MainVideoPlayer.MediaPlayer;
-                    MainVideoPlayer.MediaPlayer = new MediaPlayer(libvlc);
-
-                    var testMedia = new Media(libvlc, testFilePath, FromType.FromPath);
-                    await testMedia.Parse();
-
-                    Debug.WriteLine("media duration: " + testMedia.Duration);
-
-                    MainVideoPlayer.MediaPlayer.Play(testMedia);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Sorry vole eror: " + ex.Message + " // " + ex.StackTrace);
-            }
-
-
+            bottomBarHandler.PlayPause();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        public void AppQuit(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("This button does nothing");
+            Environment.Exit(0);
         }
     }
 }
