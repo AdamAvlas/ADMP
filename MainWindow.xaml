@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ADMP"
+        xmlns:vlcsw="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid x:Name="MainGrid">
+     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
@@ -20,24 +21,35 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Click="TopMenuOpenFile" />
                 <Separator />
-                <MenuItem Header="_Quit" />
+                <MenuItem Header="_Close app"  Click="AppQuit" />
             </MenuItem>
         </Menu>
         
         <Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1">
-            <Image Source="/media/placeholder.png"></Image>
+            <!--<Image Source="/media/placeholder.png"></Image>-->
+            <vlcsw:VideoView x:Name="MainVideoPlayer">
+                <DockPanel LastChildFill="False">
+                    <DockPanel x:Name="TopOverlay" LastChildFill="False" DockPanel.Dock="Top">
+                        <TextBlock x:Name="TopOverlayFilenameText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Left">filename</TextBlock>
+                        <TextBlock x:Name="TopOverlayDurationText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Right">duration</TextBlock>
+                    </DockPanel>
+                    <Border DockPanel.Dock="Bottom" Margin="1 25">
+                        <Slider x:Name="MainProgressBar"></Slider>
+                    </Border>
+                </DockPanel>
+            </vlcsw:VideoView>
         </Border>
         
         <Border BorderBrush="Blue" BorderThickness="2" Grid.Column="0" Grid.Row="2">
-            <DockPanel Background="DarkBlue">
-                <Button>
-                    <TextBlock FontSize="25" FontWeight="Bold">PREV/PAUSE</TextBlock>
+            <DockPanel LastChildFill="False" Background="DarkBlue">
+                <Button x:Name="PreviousButton" Margin="2 10">
+                    <TextBlock FontSize="24" FontWeight="Bold">PREV/PAUSE</TextBlock>
+                </Button>
+                <Button x:Name="PlayPauseButton" Click="PlayPause">
+                    <TextBlock x:Name="PlayPauseButtonText" FontSize="24" FontWeight="Bold">PLAY</TextBlock>
                 </Button>
                 <Button>
-                    <TextBlock FontSize="25" FontWeight="Bold">PLAY/PAUSE</TextBlock>
-                </Button>
-                <Button>
-                    <TextBlock FontSize="25" FontWeight="Bold">NEXT</TextBlock>
+                    <TextBlock FontSize="24" FontWeight="Bold">NEXTBUTT</TextBlock>
                 </Button>
             </DockPanel>
         </Border>
