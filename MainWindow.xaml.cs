@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ADMP.code;
 using LibVLCSharp;
 using LibVLCSharp.Shared;
 
@@ -25,17 +26,23 @@ namespace ADMP
     {
         public BottomBarHandler bottomBarHandler;
         public TopMenuHandler topMenuHandler;
-        public LibVLC LibVLCObj = new LibVLC();
-        
+        public ProgressBarHandler progressBarHandler;
+        public LibVLC libVLC = new LibVLC();
+        public MediaPlayer mainMediaPlayer;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            this.MainVideoPlayer.MediaPlayer = new MediaPlayer(LibVLCObj);
-            
-            bottomBarHandler = new BottomBarHandler(this);
-            topMenuHandler = new TopMenuHandler(this, this.MainVideoPlayer.MediaPlayer);
+            this.MainVideoPlayer.MediaPlayer = new MediaPlayer(libVLC);
+            mainMediaPlayer = this.MainVideoPlayer.MediaPlayer;
 
+            bottomBarHandler = new BottomBarHandler(this);
+            topMenuHandler = new TopMenuHandler(this, this.mainMediaPlayer);
+            progressBarHandler = new ProgressBarHandler(this);
+
+            //PreviousButton.Click += new RoutedEventHandler(ProgressBarSliderUpdate);
+            mainMediaPlayer.PositionChanged += new EventHandler<MediaPlayerPositionChangedEventArgs>(ProgressBarSliderUpdate);
         }
 
         private void TopMenuOpenFile(object sender, RoutedEventArgs e)
@@ -43,38 +50,19 @@ namespace ADMP
             topMenuHandler.OpenFile();
         }
 
-        //private async void PlayTest(object sender, RoutedEventArgs e)
-        //{
-        //    string testFilePath = "C:\\Users\\adam\\source\\repos\\ADMP\\media\\tsnuz.mp4";
-
-        //    Debug.WriteLine("Opening file: " + testFilePath);
-
-        //    try
-        //    {
-        //        using (var libvlc = new LibVLC())
-        //        {
-        //            //var videoPlayer = MainVideoPlayer.MediaPlayer;
-        //            //MainVideoPlayer.MediaPlayer = new MediaPlayer(libvlc);
-
-        //            var testMedia = new Media(libvlc, testFilePath, FromType.FromPath);
-        //            await testMedia.Parse();
-
-        //            Debug.WriteLine("media duration: " + testMedia.Duration);
-
-        //            MainVideoPlayer.MediaPlayer.Play(testMedia);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine("Sorry vole eror: " + ex.Message + " // " + ex.StackTrace);
-        //    }
-
-
-        //}
+        private void PlayTest(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine(mainMediaPlayer.Position);
+        }
 
         public void PlayPause(object sender, RoutedEventArgs e)
         {
             bottomBarHandler.PlayPause();
+        }
+
+        public void ProgressBarSliderUpdate(object sender, MediaPlayerPositionChangedEventArgs e)
+        {
+            progressBarHandler.UpdateProgressBar();
         }
 
         public void AppQuit(object sender, RoutedEventArgs e)
