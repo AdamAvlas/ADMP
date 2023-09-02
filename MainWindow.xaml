@@ -33,9 +33,23 @@
                         <TextBlock x:Name="TopOverlayFilenameText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Left">filename</TextBlock>
                         <TextBlock x:Name="TopOverlayDurationText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Right">duration</TextBlock>
                     </DockPanel>
-                    <Border DockPanel.Dock="Bottom" Margin="1 25">
+                    <!--<Border DockPanel.Dock="Bottom" Margin="1 25">
                         <Slider x:Name="MainProgressBar"></Slider>
-                    </Border>
+                    </Border>-->
+                    <Grid x:Name="ProgressBar" DockPanel.Dock="Bottom" Margin="50,0,50,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Column="0" Grid.Row="0">left</TextBlock>
+                        <Slider x:Name="ProgressBarSlider" Grid.Column="1" Grid.Row="0"></Slider>
+                        <TextBlock x:Name="ProgressBarTimer" Grid.Column="2" Grid.Row="0" FontWeight="Bold" FontSize="15" Background="White">right</TextBlock>
+                    </Grid>
                 </DockPanel>
             </vlcsw:VideoView>
         </Border>
@@ -48,7 +62,7 @@
                 <Button x:Name="PlayPauseButton" Click="PlayPause">
                     <TextBlock x:Name="PlayPauseButtonText" FontSize="24" FontWeight="Bold">PLAY</TextBlock>
                 </Button>
-                <Button>
+                <Button x:Name="NextButton" Click="PlayTest">
                     <TextBlock FontSize="24" FontWeight="Bold">NEXTBUTT</TextBlock>
                 </Button>
             </DockPanel>

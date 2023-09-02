@@ -20,19 +20,6 @@ namespace ADMP
 
         public void PlayPause()
         {
-            //if (mainWindow.MainVideoPlayer.MediaPlayer.Media is not null)
-            //{
-            //    if (mainWindow.MainVideoPlayer.MediaPlayer.IsPlaying)
-            //    {
-            //        mainWindow.MainVideoPlayer.MediaPlayer.Pause();
-            //        mainWindow.PlayPauseButtonText.Text = "PLAY";
-            //    }
-            //    else
-            //    {
-            //        mainWindow.MainVideoPlayer.MediaPlayer.Play();
-            //        mainWindow.PlayPauseButtonText.Text = "PAUSE";
-            //    }
-            //}
             if (mediaPlayer.Media is not null)
             {
                 if (mediaPlayer.IsPlaying)

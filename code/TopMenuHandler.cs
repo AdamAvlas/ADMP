@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows;
 using System.Diagnostics;
 using LibVLCSharp.Shared;
+using ADMP.code;
 
 namespace ADMP
 {
@@ -15,11 +16,12 @@ namespace ADMP
     {
         MainWindow mainWindow { get; set; }
         MediaPlayer mediaPlayer { get; set; }
+        ADMPUtils utils = new ADMPUtils();
 
-        public TopMenuHandler(MainWindow setMainWindow, MediaPlayer setMediaPlayer)
+        public TopMenuHandler(MainWindow mainWindow, MediaPlayer mediaPlayer)
         {
-            mainWindow = setMainWindow;
-            mediaPlayer = setMediaPlayer;
+            this.mainWindow = mainWindow;
+            this.mediaPlayer = mediaPlayer;
         }
         public async void OpenFile() 
         {
@@ -49,20 +51,11 @@ namespace ADMP
                     string[] fileNames = filePath.Split("\\");
                     string fileName = fileNames[fileNames.Length - 1];
 
-                    TimeSpan mediaDuration = TimeSpan.FromMilliseconds(media.Duration);
-                    string mediaDurationStr = "";
-                    if (mediaDuration.Minutes >= 60)
-                    {
-                        mediaDurationStr = $"{mediaDuration.Hours}:{mediaDuration.Minutes}:{mediaDuration.Seconds}";
-                    }
-                    else
-                    {
-                        mediaDurationStr = $"{mediaDuration.Minutes.ToString()}:{mediaDuration.Seconds}";
-                    }
-
+                    string mediaDurationString = utils.GetMediaDurationString(media.Duration);
+                    
                     mainWindow.PlayPauseButtonText.Text = "PAUSE";
                     mainWindow.TopOverlayFilenameText.Text = fileName;
-                    mainWindow.TopOverlayDurationText.Text = mediaDurationStr;
+                    mainWindow.TopOverlayDurationText.Text = mediaDurationString;
                 }
             }
             else
