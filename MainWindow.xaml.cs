@@ -9,19 +9,16 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-//using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using ADMP.code;
 using LibVLCSharp;
 using LibVLCSharp.Shared;
 
 namespace ADMP
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public BottomBarHandler bottomBarHandler;
@@ -41,13 +38,16 @@ namespace ADMP
             topMenuHandler = new TopMenuHandler(this, this.mainMediaPlayer);
             progressBarHandler = new ProgressBarHandler(this);
 
-            //PreviousButton.Click += new RoutedEventHandler(ProgressBarSliderUpdate);
             mainMediaPlayer.PositionChanged += new EventHandler<MediaPlayerPositionChangedEventArgs>(ProgressBarSliderUpdate);
         }
 
         private void TopMenuOpenFile(object sender, RoutedEventArgs e)
         {
             topMenuHandler.OpenFile();
+        }
+        private void TopMenuOpenTestFile(object sender, RoutedEventArgs e)
+        {
+            topMenuHandler.OpenTestFile();
         }
 
         private void PlayTest(object sender, RoutedEventArgs e)
@@ -60,9 +60,10 @@ namespace ADMP
             bottomBarHandler.PlayPause();
         }
 
+        public delegate void PBUpdate();
         public void ProgressBarSliderUpdate(object sender, MediaPlayerPositionChangedEventArgs e)
         {
-            progressBarHandler.UpdateProgressBar();
+            this.ProgressBar.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new PBUpdate(progressBarHandler.UpdateProgressBar));
         }
 
         public void AppQuit(object sender, RoutedEventArgs e)

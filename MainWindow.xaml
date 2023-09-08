@@ -20,6 +20,7 @@
         <Menu VerticalAlignment="Center">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Click="TopMenuOpenFile" />
+                <MenuItem Header="_Open testfile" Click="TopMenuOpenTestFile" />
                 <Separator />
                 <MenuItem Header="_Close app"  Click="AppQuit" />
             </MenuItem>
@@ -38,17 +39,17 @@
                     </Border>-->
                     <Grid x:Name="ProgressBar" DockPanel.Dock="Bottom" Margin="50,0,50,10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="10*"/>
-                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="9*"/>
+                            <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Column="0" Grid.Row="0">left</TextBlock>
-                        <Slider x:Name="ProgressBarSlider" Grid.Column="1" Grid.Row="0"></Slider>
-                        <TextBlock x:Name="ProgressBarTimer" Grid.Column="2" Grid.Row="0" FontWeight="Bold" FontSize="15" Background="White">right</TextBlock>
+                        <Slider x:Name="ProgressBarSlider" Grid.Column="1" Grid.Row="0" IsMoveToPointEnabled="True"></Slider>
+                        <TextBlock x:Name="ProgressBarTimer" Grid.Column="2" Grid.Row="0" FontWeight="Bold" FontSize="14" Background="White">right</TextBlock>
                     </Grid>
                 </DockPanel>
             </vlcsw:VideoView>

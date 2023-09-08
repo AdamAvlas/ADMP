@@ -23,7 +23,7 @@ namespace ADMP
             this.mainWindow = mainWindow;
             this.mediaPlayer = mediaPlayer;
         }
-        public async void OpenFile() 
+        public async void OpenFile()
         {
             string? filePath = "";
             Debug.WriteLine("Attempting to open file...");
@@ -52,7 +52,7 @@ namespace ADMP
                     string fileName = fileNames[fileNames.Length - 1];
 
                     string mediaDurationString = utils.GetMediaDurationString(media.Duration);
-                    
+
                     mainWindow.PlayPauseButtonText.Text = "PAUSE";
                     mainWindow.TopOverlayFilenameText.Text = fileName;
                     mainWindow.TopOverlayDurationText.Text = mediaDurationString;
@@ -61,6 +61,28 @@ namespace ADMP
             else
             {
                 Debug.WriteLine("File opening canceled/was unsuccessful");
+            }
+        }
+        public async void OpenTestFile()
+        {
+            string filePath = "C:\\Users\\adam\\source\\repos\\ADMP\\media\\test_files\\u_intro.mp4";
+            Debug.WriteLine("File (" + filePath + ") opened successfuly!");
+
+            using (var libvlc = new LibVLC())
+            {
+                Media media = new Media(libvlc, filePath, FromType.FromPath);
+                await media.Parse();
+
+                mediaPlayer.Play(media);
+
+                string[] fileNames = filePath.Split("\\");
+                string fileName = fileNames[fileNames.Length - 1];
+
+                string mediaDurationString = utils.GetMediaDurationString(media.Duration);
+
+                mainWindow.PlayPauseButtonText.Text = "PAUSE";
+                mainWindow.TopOverlayFilenameText.Text = fileName;
+                mainWindow.TopOverlayDurationText.Text = mediaDurationString;
             }
         }
     }
