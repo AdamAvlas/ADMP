@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace ADMP.code
 {
-    public class ADMPUtils
+    public static class ADMPUtils
     {
-        public string GetMediaDurationString(long mediaDurationSrc)
+        public static string GetMediaDurationString(long mediaDurationSrc, bool longerOverride = false)
         {
             TimeSpan mediaDuration = TimeSpan.FromMilliseconds(mediaDurationSrc);
-            string mediaDurationStr = "";
+            string mediaDurationStr;
 
             string hourString = mediaDuration.Hours.ToString();
             if (hourString.Length == 1)
@@ -30,7 +30,7 @@ namespace ADMP.code
                 secondsString = "0" + secondsString;
             }
 
-            if (mediaDuration.Hours > 0)
+            if (mediaDuration.Hours > 0 || longerOverride)
             {
                 Debug.WriteLine("this is long: " + mediaDuration.Minutes);
                 mediaDurationStr = $"{hourString}:{minuteString}:{secondsString}";

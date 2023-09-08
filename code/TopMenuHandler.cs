@@ -16,7 +16,7 @@ namespace ADMP
     {
         MainWindow mainWindow { get; set; }
         MediaPlayer mediaPlayer { get; set; }
-        ADMPUtils utils = new ADMPUtils();
+        //ADMPUtils utils = new ADMPUtils();
 
         public TopMenuHandler(MainWindow mainWindow, MediaPlayer mediaPlayer)
         {
@@ -51,7 +51,7 @@ namespace ADMP
                     string[] fileNames = filePath.Split("\\");
                     string fileName = fileNames[fileNames.Length - 1];
 
-                    string mediaDurationString = utils.GetMediaDurationString(media.Duration);
+                    string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
 
                     mainWindow.PlayPauseButtonText.Text = "PAUSE";
                     mainWindow.TopOverlayFilenameText.Text = fileName;
@@ -78,7 +78,7 @@ namespace ADMP
                 string[] fileNames = filePath.Split("\\");
                 string fileName = fileNames[fileNames.Length - 1];
 
-                string mediaDurationString = utils.GetMediaDurationString(media.Duration);
+                string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
 
                 mainWindow.PlayPauseButtonText.Text = "PAUSE";
                 mainWindow.TopOverlayFilenameText.Text = fileName;

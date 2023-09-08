@@ -10,7 +10,6 @@ namespace ADMP.code
     public class ProgressBarHandler
     {
         MainWindow mainWindow { get; set; }
-        ADMPUtils utils = new ADMPUtils();
 
         public ProgressBarHandler(MainWindow mainWindow)
         {
@@ -24,13 +23,22 @@ namespace ADMP.code
 
             long actualPosition = Convert.ToInt64(Convert.ToDouble(duration) * position);
 
-            string positionString = utils.GetMediaDurationString(actualPosition);
-            string durationString = utils.GetMediaDurationString(duration);
+            string positionString = "";
+            if (TimeSpan.FromMilliseconds(duration).Hours > 0)
+            {
+                positionString = ADMPUtils.GetMediaDurationString(actualPosition, true);
+            }
+            else
+            {
+                positionString = ADMPUtils.GetMediaDurationString(actualPosition);
+            }
+            string durationString = ADMPUtils.GetMediaDurationString(duration);
+
 
             double sliderPosition = Convert.ToDouble(mainWindow.mainMediaPlayer.Position) * 10;
 
             mainWindow.ProgressBarSlider.Value = sliderPosition;
-            mainWindow.ProgressBarTimer.Text = $"{positionString}//{durationString}";
+            mainWindow.ProgressBarTimer.Text = $"{positionString}/{durationString}";
         }
     }
 }
