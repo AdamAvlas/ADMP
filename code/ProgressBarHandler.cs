@@ -17,29 +17,20 @@ namespace ADMP.code
             this.mainWindow = mainWindow;
         }
 
-        //public void ProgressBarSliderHandler()
-        //{
-        //    //mainWindow.MainProgressBar.
-        //    //mainWindow.MainVideoPlayer.MediaPlayer.Media.sta
-        //}
         public void UpdateProgressBar()
         {
-            float position = mainWindow.mainMediaPlayer.Position;
-            double position2 = Convert.ToDouble(position);
+            double position = Convert.ToDouble(mainWindow.mainMediaPlayer.Position);
             long duration = mainWindow.mainMediaPlayer.Media.Duration;
-            double duration2 = Convert.ToDouble(duration);
 
-            double actualPosition = duration2 * position2;
+            long actualPosition = Convert.ToInt64(Convert.ToDouble(duration) * position);
 
-            long actualPosition2 = Convert.ToInt64(actualPosition);
-
-            string positionString = utils.GetMediaDurationString(actualPosition2);
+            string positionString = utils.GetMediaDurationString(actualPosition);
             string durationString = utils.GetMediaDurationString(duration);
 
-            //double slider = mainWindow.ProgressBarSlider.Value;
-            //Debug.WriteLine(positionString + " // " + durationString);
-            //mainWindow.ProgressBarSlider.Value = mainWindow.mainMediaPlayer.Position;
-            //mainWindow.ProgressBarTimer.Text = $"{positionString}:{durationString}";
+            double sliderPosition = Convert.ToDouble(mainWindow.mainMediaPlayer.Position) * 10;
+
+            mainWindow.ProgressBarSlider.Value = sliderPosition;
+            mainWindow.ProgressBarTimer.Text = $"{positionString}//{durationString}";
         }
     }
 }

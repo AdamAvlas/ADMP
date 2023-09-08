@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,12 +30,14 @@ namespace ADMP.code
                 secondsString = "0" + secondsString;
             }
 
-            if (mediaDuration.Minutes >= 60)
+            if (mediaDuration.Hours > 0)
             {
+                Debug.WriteLine("this is long: " + mediaDuration.Minutes);
                 mediaDurationStr = $"{hourString}:{minuteString}:{secondsString}";
             }
             else
             {
+                Debug.WriteLine("this is shorter:" + mediaDuration.Minutes);
                 mediaDurationStr = $"{minuteString}:{secondsString}";
             }
 
