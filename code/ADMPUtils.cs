@@ -32,12 +32,10 @@ namespace ADMP.code
 
             if (mediaDuration.Hours > 0 || longerOverride)
             {
-                Debug.WriteLine("this is long: " + mediaDuration.Minutes);
                 mediaDurationStr = $"{hourString}:{minuteString}:{secondsString}";
             }
             else
             {
-                Debug.WriteLine("this is shorter:" + mediaDuration.Minutes);
                 mediaDurationStr = $"{minuteString}:{secondsString}";
             }
 
