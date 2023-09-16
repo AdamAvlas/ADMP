@@ -39,8 +39,11 @@ namespace ADMP
             progressBarHandler = new ProgressBarHandler(this);
 
             mainMediaPlayer.PositionChanged += new EventHandler<MediaPlayerPositionChangedEventArgs>(ProgressBarSliderUpdate);
-        }
 
+            this.VolumeSlider.Value = Convert.ToDouble(mainMediaPlayer.Volume) / 10;
+
+            //this.VolumeSlider.MouseWheel += new EventHandler()
+        }
         private void TopMenuOpenFile(object sender, RoutedEventArgs e)
         {
             topMenuHandler.OpenFile();
@@ -80,6 +83,23 @@ namespace ADMP
         {
             Debug.WriteLine("muting...");
             bottomBarHandler.MuteUnmuteVideoPlayer();
+        }
+
+        private void BottomBarVolumeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            bottomBarHandler.VolumeChanged();
+        }
+
+        private void VolumeSliderMouseWheelHandler(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0)
+            {
+                bottomBarHandler.MouseWheelVolumeChange(true);
+            }
+            else
+            {
+                bottomBarHandler.MouseWheelVolumeChange(false);
+            }
         }
     }
 }
