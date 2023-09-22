@@ -1,6 +1,7 @@
 ﻿using LibVLCSharp.Shared;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,28 +11,70 @@ namespace ADMP
     public class BottomBarHandler
     {
         MainWindow mainWindow { get; set; }
-        MediaPlayer? mediaPlayer;
+        int originalVolume;
 
-        public BottomBarHandler(MainWindow setWindow)
+        public BottomBarHandler(MainWindow mainWindow)
         {
-            mainWindow = setWindow;
-            mediaPlayer = mainWindow.MainVideoPlayer.MediaPlayer;
+            this.mainWindow = mainWindow;
         }
 
         public void PlayPause()
         {
-            if (mediaPlayer.Media is not null)
+            if (mainWindow.mainMediaPlayer.Media is not null)
             {
-                if (mediaPlayer.IsPlaying)
+                if (mainWindow.mainMediaPlayer.IsPlaying)
                 {
-                    mediaPlayer.Pause();
+                    mainWindow.mainMediaPlayer.Pause();
                     mainWindow.PlayPauseButtonText.Text = "PLAY";
                 }
                 else
                 {
-                    mediaPlayer.Play();
+                    mainWindow.mainMediaPlayer.Play();
                     mainWindow.PlayPauseButtonText.Text = "PAUSE";
                 }
+            }
+        }
+
+        public void MuteUnmuteVideoPlayer()
+        {
+            if (mainWindow.mainMediaPlayer.Volume == 0)
+            {
+                if (originalVolume != 0)
+                {
+                    mainWindow.mainMediaPlayer.Volume = originalVolume;
+                    mainWindow.VolumeSlider.Value = Convert.ToDouble(mainWindow.mainMediaPlayer.Volume) / 10;
+                }
+                else
+                {
+                    mainWindow.mainMediaPlayer.Volume = 50;
+                    mainWindow.VolumeSlider.Value = 50.0;
+                }
+                mainWindow.MuteButtonTextBlock.Text = "MUTE";
+            }
+            else
+            {
+                originalVolume = mainWindow.mainMediaPlayer.Volume;
+                mainWindow.mainMediaPlayer.Volume = 0;
+                mainWindow.MuteButtonTextBlock.Text = "UNM";
+                mainWindow.VolumeSlider.Value = 0;
+            }
+        }
+        public void VolumeChanged()
+        {
+            int sliderVal = Convert.ToInt32(mainWindow.VolumeSlider.Value * 10);
+            mainWindow.mainMediaPlayer.Volume = sliderVal;
+            Debug.WriteLine("slider val.:" + sliderVal);
+        }
+
+        public void MouseWheelVolumeChange(bool positive)
+        {
+            if (positive)
+            {
+                mainWindow.VolumeSlider.Value = mainWindow.VolumeSlider.Value + 0.2;
+            }
+            else
+            {
+                mainWindow.VolumeSlider.Value = mainWindow.VolumeSlider.Value - 0.2;
             }
         }
     }
