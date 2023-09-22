@@ -24,14 +24,14 @@ namespace ADMP.code
 
             long actualPosition = Convert.ToInt64(Convert.ToDouble(duration) * position);
 
-            string positionString = "";
+            string timeElapsedString = "";
             if (TimeSpan.FromMilliseconds(duration).Hours > 0)
             {
-                positionString = ADMPUtils.GetMediaDurationString(actualPosition, true);
+                timeElapsedString = ADMPUtils.GetMediaDurationString(actualPosition, true);
             }
             else
             {
-                positionString = ADMPUtils.GetMediaDurationString(actualPosition);
+                timeElapsedString = ADMPUtils.GetMediaDurationString(actualPosition);
             }
             string durationString = ADMPUtils.GetMediaDurationString(duration);
 
@@ -41,7 +41,7 @@ namespace ADMP.code
             {
                 mainWindow.ProgressBarSlider.Value = sliderPosition;
             }
-            mainWindow.ProgressBarTimer.Text = $"{positionString}/{durationString}";
+            mainWindow.ProgressBarTimer.Text = $"{timeElapsedString}/{durationString}";
         }
 
         public void SliderDragEnter()

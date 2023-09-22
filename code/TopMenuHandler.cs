@@ -56,6 +56,7 @@ namespace ADMP
                     mainWindow.PlayPauseButtonText.Text = "PAUSE";
                     mainWindow.TopOverlayFilenameText.Text = fileName;
                     mainWindow.TopOverlayDurationText.Text = mediaDurationString;
+                    mainWindow.isPlaying = true;
                 }
             }
             else
@@ -83,6 +84,7 @@ namespace ADMP
                 mainWindow.PlayPauseButtonText.Text = "PAUSE";
                 mainWindow.TopOverlayFilenameText.Text = fileName;
                 mainWindow.TopOverlayDurationText.Text = mediaDurationString;
+                mainWindow.isPlaying = true;
             }
         }
     }

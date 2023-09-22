@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -26,6 +27,7 @@ namespace ADMP
         public ProgressBarHandler progressBarHandler;
         public LibVLC libVLC = new LibVLC();
         public MediaPlayer mainMediaPlayer;
+        public bool isPlaying = false;
 
         public MainWindow()
         {
@@ -38,11 +40,14 @@ namespace ADMP
             topMenuHandler = new TopMenuHandler(this, this.mainMediaPlayer);
             progressBarHandler = new ProgressBarHandler(this);
 
-            mainMediaPlayer.PositionChanged += new EventHandler<MediaPlayerPositionChangedEventArgs>(ProgressBarSliderUpdate);
+            //mainMediaPlayer.PositionChanged += new EventHandler<MediaPlayerPositionChangedEventArgs>(ProgressBarSliderUpdate);
+
+            Timer progressUpdateTimer = new Timer(1000);
+            progressUpdateTimer.AutoReset = true;
+            progressUpdateTimer.Elapsed += ProgressBarSliderUpdate;
+            progressUpdateTimer.Start();
 
             this.VolumeSlider.Value = Convert.ToDouble(mainMediaPlayer.Volume) / 10;
-
-            //this.VolumeSlider.MouseWheel += new EventHandler()
         }
         private void TopMenuOpenFile(object sender, RoutedEventArgs e)
         {
@@ -59,9 +64,14 @@ namespace ADMP
         }
 
         public delegate void PBUpdate();
-        public void ProgressBarSliderUpdate(object sender, MediaPlayerPositionChangedEventArgs e)
+
+        public void ProgressBarSliderUpdate(object? sender, ElapsedEventArgs e)
         {
-            this.ProgressBar.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new PBUpdate(progressBarHandler.UpdateProgressBar));
+            if (isPlaying)
+            {
+                Debug.WriteLine("updating...");
+                this.ProgressBar.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new PBUpdate(progressBarHandler.UpdateProgressBar));
+            }
         }
 
         public void AppQuit(object sender, RoutedEventArgs e)

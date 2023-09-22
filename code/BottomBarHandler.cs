@@ -26,11 +26,13 @@ namespace ADMP
                 {
                     mainWindow.mainMediaPlayer.Pause();
                     mainWindow.PlayPauseButtonText.Text = "PLAY";
+                    mainWindow.isPlaying = false;
                 }
                 else
                 {
                     mainWindow.mainMediaPlayer.Play();
                     mainWindow.PlayPauseButtonText.Text = "PAUSE";
+                    mainWindow.isPlaying = true;
                 }
             }
         }
