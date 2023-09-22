@@ -79,7 +79,7 @@
                 <Button x:Name="MuteButton" Click="BottomBarMute" Grid.Column="5" Grid.Row="0">
                     <TextBlock x:Name="MuteButtonTextBlock" FontSize="13" FontWeight="Bold">MUTE</TextBlock>
                 </Button>
-                <Slider x:Name="VolumeSlider" ValueChanged="BottomBarVolumeChanged" MouseWheel="VolumeSliderMouseWheelHandler" Grid.Column="6" Grid.Row="0" VerticalAlignment="Center"></Slider>
+                <Slider x:Name="VolumeSlider" ValueChanged="BottomBarVolumeChanged" MouseWheel="VolumeSliderMouseWheelHandler" IsMoveToPointEnabled="True" Grid.Column="6" Grid.Row="0" VerticalAlignment="Center"></Slider>
             </Grid>
         </Border>
     </Grid>
