@@ -9,6 +9,9 @@ using System.Windows;
 using System.Diagnostics;
 using LibVLCSharp.Shared;
 using ADMP.code;
+using System.Timers;
+using System.Security.Cryptography.X509Certificates;
+using System.Windows.Threading;
 
 namespace ADMP
 {
@@ -57,6 +60,19 @@ namespace ADMP
                     mainWindow.TopOverlayFilenameText.Text = fileName;
                     mainWindow.TopOverlayDurationText.Text = mediaDurationString;
                     mainWindow.isPlaying = true;
+
+                    Timer labelsTimer = new Timer(5000);
+                    labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
+                    {
+                        mainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
+                        {
+                            mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
+                            mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
+                        }));
+
+                    };
+                    labelsTimer.Start();
+
                 }
             }
             else
@@ -64,6 +80,9 @@ namespace ADMP
                 Debug.WriteLine("File opening canceled/was unsuccessful");
             }
         }
+
+        delegate void labelHideDelegate();
+
         public async void OpenTestFile()
         {
             string filePath = "C:\\Users\\adam\\source\\repos\\ADMP\\media\\test_files\\u_intro.mp4";
@@ -85,6 +104,18 @@ namespace ADMP
                 mainWindow.TopOverlayFilenameText.Text = fileName;
                 mainWindow.TopOverlayDurationText.Text = mediaDurationString;
                 mainWindow.isPlaying = true;
+
+                Timer labelsTimer = new Timer(5000);
+                labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
+                {
+                    mainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
+                    {
+                        mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
+                        mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
+                    }));
+
+                };
+                labelsTimer.Start();
             }
         }
     }
