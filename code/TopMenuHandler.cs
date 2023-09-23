@@ -19,7 +19,6 @@ namespace ADMP
     {
         MainWindow mainWindow { get; set; }
         MediaPlayer mediaPlayer { get; set; }
-        //ADMPUtils utils = new ADMPUtils();
 
         public TopMenuHandler(MainWindow mainWindow, MediaPlayer mediaPlayer)
         {
@@ -69,7 +68,6 @@ namespace ADMP
                             mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
                             mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
                         }));
-
                     };
                     labelsTimer.Start();
 
@@ -113,7 +111,6 @@ namespace ADMP
                         mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
                         mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
                     }));
-
                 };
                 labelsTimer.Start();
             }
