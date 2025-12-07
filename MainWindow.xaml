@@ -25,11 +25,11 @@
                 <MenuItem Header="_Close app"  Click="AppQuit" />
             </MenuItem>
         </Menu>
-        
-        <Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1">
-            <vlcsw:VideoView x:Name="MainVideoPlayer">
-                <DockPanel LastChildFill="False">
-                    <DockPanel x:Name="TopOverlay" LastChildFill="False" DockPanel.Dock="Top">
+
+		<Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1" MouseWheel="VolumeSliderMouseWheelHandler">
+			<vlcsw:VideoView x:Name="MainVideoPlayer">
+				<DockPanel LastChildFill="False">
+					<DockPanel x:Name="TopOverlay" LastChildFill="False" DockPanel.Dock="Top">
                         <TextBlock x:Name="TopOverlayFilenameText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Left">filename</TextBlock>
                         <TextBlock x:Name="TopOverlayDurationText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Right">duration</TextBlock>
                     </DockPanel>

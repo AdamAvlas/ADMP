@@ -12,6 +12,7 @@ namespace ADMP
     {
         MainWindow mainWindow { get; set; }
         int originalVolume;
+        bool isMuted = false;
 
         public BottomBarHandler(MainWindow mainWindow)
         {
@@ -39,26 +40,22 @@ namespace ADMP
 
         public void MuteUnmuteVideoPlayer()
         {
-            if (mainWindow.mainMediaPlayer.Volume == 0)
+            if (!isMuted)
             {
-                if (originalVolume != 0)
-                {
-                    mainWindow.mainMediaPlayer.Volume = originalVolume;
-                    mainWindow.VolumeSlider.Value = Convert.ToDouble(mainWindow.mainMediaPlayer.Volume) / 10;
-                }
-                else
-                {
-                    mainWindow.mainMediaPlayer.Volume = 50;
-                    mainWindow.VolumeSlider.Value = 50.0;
-                }
-                mainWindow.MuteButtonTextBlock.Text = "MUTE";
-            }
-            else
-            {
+                isMuted = true;
+                mainWindow.VolumeSlider.IsEnabled = false;
                 originalVolume = mainWindow.mainMediaPlayer.Volume;
                 mainWindow.mainMediaPlayer.Volume = 0;
                 mainWindow.MuteButtonTextBlock.Text = "UNM";
-                mainWindow.VolumeSlider.Value = 0;
+
+            }
+            else
+            {
+                isMuted = false;
+                mainWindow.VolumeSlider.IsEnabled = true;
+                mainWindow.mainMediaPlayer.Volume = originalVolume;
+                mainWindow.MuteButtonTextBlock.Text = "MUTE";
+
             }
         }
         public void VolumeChanged()
