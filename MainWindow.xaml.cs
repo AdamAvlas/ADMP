@@ -111,5 +111,10 @@ namespace ADMP
                 bottomBarHandler.MouseWheelVolumeChange(false);
             }
         }
+
+        private void ProgressBarSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            progressBarHandler.SliderValueChanged();
+        }
     }
 }
