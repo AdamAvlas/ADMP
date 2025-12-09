@@ -20,17 +20,28 @@
         <Menu VerticalAlignment="Center">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Click="TopMenuOpenFile" />
-                <MenuItem Header="_Open testfile" Click="TopMenuOpenTestFile" />
+                <!--<MenuItem Header="_Open testfile" Click="TopMenuOpenTestFile" />-->
                 <Separator />
                 <MenuItem Header="_Close app"  Click="AppQuit" />
             </MenuItem>
-        </Menu>
+
+			<MenuItem Header="_Subtitles">
+				<!--<MenuItem Header="_Load subtitles" Click="LoadSubtitleFile" />-->
+				<MenuItem Header="_Subtitle tracks" x:Name="SubtitleTrackList" Visibility="Collapsed">
+				</MenuItem>
+			</MenuItem>
+
+			<MenuItem Header="_Configuration">
+				<MenuItem Header="_Settings" Click="TopMenuOpenSettings" />
+			</MenuItem>
+		</Menu>
         
         <Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1">
             <vlcsw:VideoView x:Name="MainVideoPlayer">
                 <DockPanel LastChildFill="False">
-                    <DockPanel x:Name="TopOverlay" LastChildFill="False" DockPanel.Dock="Top">
+                    <DockPanel x:Name="TopOverlay" LastChildFill="False" DockPanel.Dock="Top" >
                         <TextBlock x:Name="TopOverlayFilenameText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Left">filename</TextBlock>
+						<TextBlock x:Name="TopOverlaySubtitleTEMP" Background="Black" Foreground="GreenYellow" FontWeight="Bold" DockPanel.Dock="Left">subtitle</TextBlock>
                         <TextBlock x:Name="TopOverlayDurationText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Right">duration</TextBlock>
                     </DockPanel>
                     <Grid x:Name="ProgressBar" DockPanel.Dock="Bottom" Margin="50,0,50,10">
