@@ -148,9 +148,9 @@ namespace ADMP
             progressBarHandler.SliderValueChanged();
         }
 
-        //private void LoadSubtitleFile(object sender, RoutedEventArgs e)
-        //{
-        //    topMenuHandler.LoadSubtitleFile();
-        //}
+        private void LoadSubtitleFile(object sender, RoutedEventArgs e)
+        {
+            topMenuHandler.LoadSubtitleFile();
+        }
     }
 }

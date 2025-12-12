@@ -12,6 +12,7 @@ using ADMP.code;
 using System.Timers;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Threading;
+using SubtitlesParser.Classes;
 
 namespace ADMP
 {
@@ -100,40 +101,40 @@ namespace ADMP
         //    }
         //    string subtitlePath = "C:\\Users\\Adam\\Downloads\\2_English(3).srt";
 
-            //await Task.Delay(1000);
-            //if (File.Exists(subtitlePath))
-            //{
-            //    string subtitleUri = new Uri(subtitlePath).AbsolutePath;
-            //    Debug.WriteLine("Adding subtitle file: " + subtitlePath);
-                //bool success = mediaPlayer.AddSlave(MediaSlaveType.Subtitle, subtitleUri, true);
-                //bool success = currentMedia.AddSlave(MediaSlaveType.Subtitle, 1, subtitleUri);
-                //if (success)
-                //{
-                //    Debug.WriteLine("Subtitle file added successfully!");
-                //}
-                //else
-                //{
-                //    Debug.WriteLine("Failed to add subtitle file.");
-                //    return;
-                //}
-                //media.AddOption(":subsdec-encoding=UTF-8");
-                //media.AddOption(":sub-pos=30");
-                //media.AddOption(":freetype-rel-fontsize=50");
-                //media.AddOption(":freetype-color=16711680");
-                //mediaPlayer.SetSpu(-1);
+        //await Task.Delay(1000);
+        //if (File.Exists(subtitlePath))
+        //{
+        //    string subtitleUri = new Uri(subtitlePath).AbsolutePath;
+        //    Debug.WriteLine("Adding subtitle file: " + subtitlePath);
+        //bool success = mediaPlayer.AddSlave(MediaSlaveType.Subtitle, subtitleUri, true);
+        //bool success = currentMedia.AddSlave(MediaSlaveType.Subtitle, 1, subtitleUri);
+        //if (success)
+        //{
+        //    Debug.WriteLine("Subtitle file added successfully!");
+        //}
+        //else
+        //{
+        //    Debug.WriteLine("Failed to add subtitle file.");
+        //    return;
+        //}
+        //media.AddOption(":subsdec-encoding=UTF-8");
+        //media.AddOption(":sub-pos=30");
+        //media.AddOption(":freetype-rel-fontsize=50");
+        //media.AddOption(":freetype-color=16711680");
+        //mediaPlayer.SetSpu(-1);
 
-                //mediaPlayer.Stop();
-                //await Task.Delay(200);
-                //mediaPlayer.Play();
-                //mediaPlayer.Stop();
-                //Media newMedia = new Media(mainWindow.libVLC, currentMedia.Mrl, FromType.FromLocation);
-                //currentMedia.Dispose();
-                //await newMedia.Parse();
-                //mediaPlayer.Play(newMedia);
+        //mediaPlayer.Stop();
+        //await Task.Delay(200);
+        //mediaPlayer.Play();
+        //mediaPlayer.Stop();
+        //Media newMedia = new Media(mainWindow.libVLC, currentMedia.Mrl, FromType.FromLocation);
+        //currentMedia.Dispose();
+        //await newMedia.Parse();
+        //mediaPlayer.Play(newMedia);
 
-                //await Task.Delay(1000);
-                //Debug.WriteLine("restarted subtitle count: " + mediaPlayer.SpuCount);
-                //mediaPlayer.SetSpu(1);
+        //await Task.Delay(1000);
+        //Debug.WriteLine("restarted subtitle count: " + mediaPlayer.SpuCount);
+        //mediaPlayer.SetSpu(1);
         //        mainWindow.GenerateSubtitleTracks();
         //    }
         //    else
@@ -141,6 +142,59 @@ namespace ADMP
         //        Debug.WriteLine("Subtitle file not found!");
         //    }
         //}
+        public async void LoadSubtitleFile()
+        {
+            if (!mediaPlayer.IsPlaying)
+            {
+                Debug.WriteLine("Cannot load subtitle file, because no media is playing!");
+                return;
+            }
+            //OpenFileDialog ofd = new OpenFileDialog();
+            //ofd.Multiselect = false;
+            //ofd.DefaultExt = ".srt";
+            //ofd.Filter = "Subtitle files|*.srt;*.sub;*.";
+            string subtitlePath = "C:\\Users\\adama\\Downloads\\2_English(3).srt";
+            if (!File.Exists(subtitlePath))
+            {
+                Debug.WriteLine("Subtitle file not found!");
+                return;
+            }
+            var parser = new SubtitlesParser.Classes.Parsers.SubParser();
+
+            using (var fileStream = File.OpenRead(subtitlePath))
+            {
+                try
+                {
+                    var mostLikelyFormat = parser.GetMostLikelyFormat(subtitlePath);
+                    Debug.WriteLine("Most likely subtitle format: " + mostLikelyFormat.Name);
+                    var items = parser.ParseStream(fileStream, Encoding.UTF8, mostLikelyFormat);
+                    Debug.WriteLine("Parsed " + items.Count + " subtitle items.");
+
+                    Debug.WriteLine($"Line: {items[0].Lines[0]};ST: {items[0].StartTime};ET: {items[0].EndTime}");
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Error parsing subtitle file: " + ex.Message);
+                }
+            }
+        }
+        private async void SubtitleDisplay()
+        {
+            int subIndex = 0;
+            while (mediaPlayer.IsPlaying)
+            {
+                //foreach (var subtitle in subtitles)
+                //{
+                //    if (currentTime >= subtitle.StartTime && currentTime <= subtitle.EndTime)
+                //    {
+                //        // Display subtitle
+                //        mainWindow.SubtitleTextBlock.Text = string.Join("\n", subtitle.Lines);
+                //    }
+                //}
+                //await Task.Delay(500); // Check every 500 milliseconds
+            }
+        }
 
         delegate void labelHideDelegate();
 
