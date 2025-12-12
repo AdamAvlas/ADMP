@@ -33,63 +33,63 @@ namespace ADMP
             string? filePath = "";
             Debug.WriteLine("Attempting to open file...");
 
-            OpenFileDialog ofd = new OpenFileDialog();
-
-            ofd.Multiselect = false;
-            ofd.DefaultExt = ".mp4";
-            ofd.Filter = "Video files|*.mp4;*.mkv";
+            OpenFileDialog ofd = new()
+            {
+                Multiselect = false,
+                DefaultExt = ".mp4",
+                Filter = "Video files|*.mp4;*.mkv"
+            };
 
             bool? result = ofd.ShowDialog();
 
-            if (result == true)
-            {
-                filePath = ofd.FileName;
-                Debug.WriteLine("File (" + filePath + ") opened successfuly!");
-
-                using (var libvlc = mainWindow.libVLC)
-                {
-                    Media media = new Media(libvlc, filePath, FromType.FromPath);
-                    currentMedia = media;
-
-                    await media.Parse();
-
-                    //string subtitlePath = "file:///C:\\Users\\Adam\\Downloads\\2_English(3).srt";
-
-                    mediaPlayer.Play(media);
-
-                    mainWindow.GenerateSubtitleTracks();
-
-
-                    mediaPlayer.MediaChanged += (s, e) =>
-                    {
-                        Debug.WriteLine("media changed");
-                    };
-
-                    string[] fileNames = filePath.Split("\\");
-                    string fileName = fileNames[fileNames.Length - 1];
-
-                    string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
-
-                    mainWindow.PlayPauseButtonText.Text = "PAUSE";
-                    mainWindow.TopOverlayFilenameText.Text = fileName;
-                    mainWindow.TopOverlayDurationText.Text = mediaDurationString;
-                    mainWindow.isPlaying = true;
-
-                    Timer labelsTimer = new Timer(5000);
-                    labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
-                    {
-                        mainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
-                        {
-                            mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
-                            mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
-                        }));
-                    };
-                    labelsTimer.Start();
-                }
-            }
-            else
+            if (!result == true)
             {
                 Debug.WriteLine("File opening canceled/was unsuccessful");
+            }
+
+            filePath = ofd.FileName;
+
+            if (!File.Exists(filePath))
+            {
+                Debug.WriteLine("File not found/not accessible!");
+                return;
+            }
+
+            Debug.WriteLine("File (" + filePath + ") opened successfuly!");
+
+            using (var libvlc = mainWindow.libVLC)
+            {
+                Media media = new Media(libvlc, filePath, FromType.FromPath);
+                currentMedia = media;
+
+                await media.Parse();
+
+                //string subtitlePath = "file:///C:\\Users\\Adam\\Downloads\\2_English(3).srt";
+
+                mediaPlayer.Play(media);
+
+                mainWindow.GenerateSubtitleTracks();
+
+                string[] fileNames = filePath.Split("\\");
+                string fileName = fileNames[fileNames.Length - 1];
+
+                string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
+
+                mainWindow.PlayPauseButtonText.Text = "PAUSE";
+                mainWindow.TopOverlayFilenameText.Text = fileName;
+                mainWindow.TopOverlayDurationText.Text = mediaDurationString;
+                mainWindow.isPlaying = true;
+
+                Timer labelsTimer = new Timer(5000);
+                labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
+                {
+                    mainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
+                    {
+                        mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
+                        mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
+                    }));
+                };
+                labelsTimer.Start();
             }
         }
 
