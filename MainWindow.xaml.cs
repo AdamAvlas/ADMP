@@ -29,6 +29,7 @@ namespace ADMP
         public LibVLC libVLC = new LibVLC();
         public MediaPlayer mainMediaPlayer;
         public bool isPlaying = false;
+        public List<Timer> activeTimers = [];
 
         public MainWindow()
         {
@@ -42,8 +43,22 @@ namespace ADMP
             progressBarHandler = new ProgressBarHandler(this);
 
             //mainMediaPlayer.PositionChanged += new EventHandler<MediaPlayerPositionChangedEventArgs>(ProgressBarSliderUpdate);
+            mainMediaPlayer.EndReached += (s, e) =>
+            {
+                Debug.WriteLine("Media ended.");
+                foreach (var timer in activeTimers)
+                {
+                    timer.Stop();
+                }
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
+                {
+                    PlayPauseButtonText.Text = "PLAY";
+                    isPlaying = false;
+                }));
+            };
 
             Timer progressUpdateTimer = new Timer(1000);
+            activeTimers.Add(progressUpdateTimer);
             progressUpdateTimer.AutoReset = true;
             progressUpdateTimer.Elapsed += ProgressBarSliderUpdate;
             progressUpdateTimer.Start();
@@ -100,8 +115,7 @@ namespace ADMP
         {
             if (isPlaying)
             {
-                //Debug.WriteLine("updating...");
-                this.ProgressBar.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new PBUpdate(progressBarHandler.UpdateProgressBar));
+                ProgressBar.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new PBUpdate(progressBarHandler.UpdateProgressBar));
             }
         }
 

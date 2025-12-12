@@ -21,6 +21,7 @@ namespace ADMP
         MainWindow mainWindow { get; set; }
         MediaPlayer mediaPlayer { get; set; }
         private Media currentMedia;
+        private List<SubtitleItem> currentSubtitles = [];
 
         public TopMenuHandler(MainWindow mainWindow, MediaPlayer mediaPlayer)
         {
@@ -92,56 +93,6 @@ namespace ADMP
             }
         }
 
-        //public async Task LoadSubtitleFile()
-        //{
-        //    if (!mediaPlayer.IsPlaying)
-        //    {
-        //        Debug.WriteLine("Cannot load subtitle file, because no media is playing!");
-        //        return;
-        //    }
-        //    string subtitlePath = "C:\\Users\\Adam\\Downloads\\2_English(3).srt";
-
-        //await Task.Delay(1000);
-        //if (File.Exists(subtitlePath))
-        //{
-        //    string subtitleUri = new Uri(subtitlePath).AbsolutePath;
-        //    Debug.WriteLine("Adding subtitle file: " + subtitlePath);
-        //bool success = mediaPlayer.AddSlave(MediaSlaveType.Subtitle, subtitleUri, true);
-        //bool success = currentMedia.AddSlave(MediaSlaveType.Subtitle, 1, subtitleUri);
-        //if (success)
-        //{
-        //    Debug.WriteLine("Subtitle file added successfully!");
-        //}
-        //else
-        //{
-        //    Debug.WriteLine("Failed to add subtitle file.");
-        //    return;
-        //}
-        //media.AddOption(":subsdec-encoding=UTF-8");
-        //media.AddOption(":sub-pos=30");
-        //media.AddOption(":freetype-rel-fontsize=50");
-        //media.AddOption(":freetype-color=16711680");
-        //mediaPlayer.SetSpu(-1);
-
-        //mediaPlayer.Stop();
-        //await Task.Delay(200);
-        //mediaPlayer.Play();
-        //mediaPlayer.Stop();
-        //Media newMedia = new Media(mainWindow.libVLC, currentMedia.Mrl, FromType.FromLocation);
-        //currentMedia.Dispose();
-        //await newMedia.Parse();
-        //mediaPlayer.Play(newMedia);
-
-        //await Task.Delay(1000);
-        //Debug.WriteLine("restarted subtitle count: " + mediaPlayer.SpuCount);
-        //mediaPlayer.SetSpu(1);
-        //        mainWindow.GenerateSubtitleTracks();
-        //    }
-        //    else
-        //    {
-        //        Debug.WriteLine("Subtitle file not found!");
-        //    }
-        //}
         public async void LoadSubtitleFile()
         {
             if (!mediaPlayer.IsPlaying)
@@ -149,17 +100,30 @@ namespace ADMP
                 Debug.WriteLine("Cannot load subtitle file, because no media is playing!");
                 return;
             }
-            //OpenFileDialog ofd = new OpenFileDialog();
-            //ofd.Multiselect = false;
-            //ofd.DefaultExt = ".srt";
-            //ofd.Filter = "Subtitle files|*.srt;*.sub;*.";
-            string subtitlePath = "C:\\Users\\adama\\Downloads\\2_English(3).srt";
+
+            OpenFileDialog ofd = new()
+            {
+                Multiselect = false,
+                DefaultExt = ".srt",
+                Filter = "Subtitle files|*.srt;*.sub;*."
+            };
+
+            bool? result = ofd.ShowDialog();
+
+            if (!result == true)
+            {
+                Debug.WriteLine("Subtitle file selection canceled/was unsuccessful");
+                return;
+            }
+
+            string subtitlePath = ofd.FileName;
             if (!File.Exists(subtitlePath))
             {
                 Debug.WriteLine("Subtitle file not found!");
                 return;
             }
             var parser = new SubtitlesParser.Classes.Parsers.SubParser();
+            List<SubtitleItem> items = [];
 
             using (var fileStream = File.OpenRead(subtitlePath))
             {
@@ -167,33 +131,60 @@ namespace ADMP
                 {
                     var mostLikelyFormat = parser.GetMostLikelyFormat(subtitlePath);
                     Debug.WriteLine("Most likely subtitle format: " + mostLikelyFormat.Name);
-                    var items = parser.ParseStream(fileStream, Encoding.UTF8, mostLikelyFormat);
+                    items = parser.ParseStream(fileStream, Encoding.UTF8, mostLikelyFormat);
                     Debug.WriteLine("Parsed " + items.Count + " subtitle items.");
 
                     Debug.WriteLine($"Line: {items[0].Lines[0]};ST: {items[0].StartTime};ET: {items[0].EndTime}");
 
+                    currentSubtitles = items;
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("Error parsing subtitle file: " + ex.Message);
+                    return;
                 }
             }
-        }
-        private async void SubtitleDisplay()
-        {
-            int subIndex = 0;
-            while (mediaPlayer.IsPlaying)
+
+            Timer subUpdateTimer = new(100)
             {
-                //foreach (var subtitle in subtitles)
-                //{
-                //    if (currentTime >= subtitle.StartTime && currentTime <= subtitle.EndTime)
-                //    {
-                //        // Display subtitle
-                //        mainWindow.SubtitleTextBlock.Text = string.Join("\n", subtitle.Lines);
-                //    }
-                //}
-                //await Task.Delay(500); // Check every 500 milliseconds
+                AutoReset = true
+            };
+            subUpdateTimer.Elapsed += SubtitleUpdateCall;
+            subUpdateTimer.Start();
+            mainWindow.activeTimers.Add(subUpdateTimer);
+        }
+        public void SubtitleUpdateCall(object? sender, ElapsedEventArgs e)
+        {
+            if (mainWindow.isPlaying)
+            {
+                mainWindow.SubtitleDisplay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SubUpdateDelegate(SubtitleUpdate));
             }
+        }
+        public delegate void SubUpdateDelegate();
+        private void SubtitleUpdate()
+        {
+
+            double position = Convert.ToDouble(mainWindow.mainMediaPlayer.Position);
+            long duration = mainWindow.mainMediaPlayer.Media.Duration;
+
+            long actualPosition = Convert.ToInt64(Convert.ToDouble(duration) * position);
+
+            int temp = 0;
+            if (currentSubtitles.Count > 0)
+            {
+                temp = currentSubtitles[0].StartTime;
+            }
+
+            foreach (SubtitleItem subtitle in currentSubtitles)
+            {
+                if (actualPosition >= subtitle.StartTime && actualPosition <= subtitle.EndTime)
+                {
+                    mainWindow.SubtitleDisplay.Visibility = Visibility.Visible;
+                    mainWindow.SubtitleDisplay.Text = string.Join("\n", subtitle.Lines);
+                    return;
+                }
+            }
+            mainWindow.SubtitleDisplay.Visibility = Visibility.Hidden;
         }
 
         delegate void labelHideDelegate();
