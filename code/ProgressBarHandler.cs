@@ -11,6 +11,7 @@ namespace ADMP.code
     {
         MainWindow mainWindow { get; set; }
         bool isDragging = false;
+        bool isBeingUpdated = false;
 
         public ProgressBarHandler(MainWindow mainWindow)
         {
@@ -39,7 +40,9 @@ namespace ADMP.code
 
             if (!isDragging)
             {
+                isBeingUpdated = true;
                 mainWindow.ProgressBarSlider.Value = sliderPosition;
+                isBeingUpdated = false;
             }
             mainWindow.ProgressBarTimer.Text = $"{timeElapsedString}/{durationString}";
         }
@@ -47,12 +50,21 @@ namespace ADMP.code
         public void SliderDragEnter()
         {
             isDragging = true;
+            Debug.WriteLine("Dragging started...");
         }
         public void SliderDragLeave()
         {
             float playerNewPosition = Convert.ToSingle(mainWindow.ProgressBarSlider.Value) / 10;
             mainWindow.mainMediaPlayer.Position = playerNewPosition;
             isDragging = false;
+        }
+        public void SliderValueChanged()
+        {
+            if (!isDragging && !isBeingUpdated)
+            {
+                float playerNewPosition = Convert.ToSingle(mainWindow.ProgressBarSlider.Value) / 10;
+                mainWindow.mainMediaPlayer.Position = playerNewPosition;
+            }
         }
     }
 }

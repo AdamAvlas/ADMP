@@ -17,6 +17,7 @@ using System.Windows.Threading;
 using ADMP.code;
 using LibVLCSharp;
 using LibVLCSharp.Shared;
+using LibVLCSharp.Shared.Structures;
 
 namespace ADMP
 {
@@ -28,6 +29,7 @@ namespace ADMP
         public LibVLC libVLC = new LibVLC();
         public MediaPlayer mainMediaPlayer;
         public bool isPlaying = false;
+        public List<Timer> activeTimers = [];
 
         public MainWindow()
         {
@@ -37,17 +39,57 @@ namespace ADMP
             mainMediaPlayer = this.MainVideoPlayer.MediaPlayer;
 
             bottomBarHandler = new BottomBarHandler(this);
-            topMenuHandler = new TopMenuHandler(this, this.mainMediaPlayer);
+            topMenuHandler = new TopMenuHandler(this, mainMediaPlayer);
             progressBarHandler = new ProgressBarHandler(this);
 
             //mainMediaPlayer.PositionChanged += new EventHandler<MediaPlayerPositionChangedEventArgs>(ProgressBarSliderUpdate);
+            mainMediaPlayer.EndReached += (s, e) =>
+            {
+                Debug.WriteLine("Media ended.");
+                foreach (var timer in activeTimers)
+                {
+                    timer.Stop();
+                }
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
+                {
+                    PlayPauseButtonText.Text = "PLAY";
+                    isPlaying = false;
+                }));
+            };
 
             Timer progressUpdateTimer = new Timer(1000);
+            activeTimers.Add(progressUpdateTimer);
             progressUpdateTimer.AutoReset = true;
             progressUpdateTimer.Elapsed += ProgressBarSliderUpdate;
             progressUpdateTimer.Start();
 
             this.VolumeSlider.Value = Convert.ToDouble(mainMediaPlayer.Volume) / 10;
+        }
+        public async Task GenerateSubtitleTracks()
+        {
+            await Task.Delay(1000);
+            if (mainMediaPlayer.SpuCount > 0)
+            {
+                SubtitleTrackList.Visibility = Visibility.Visible;
+                Debug.WriteLine("Generating subtitle tracks...");
+                TrackDescription[] subtitleDescriptionList = mainMediaPlayer.SpuDescription;
+                foreach (TrackDescription subtitleTrack in subtitleDescriptionList)
+                {
+                    MenuItem menuItem = new() { Header = subtitleTrack.Name, Tag = subtitleTrack.Id };
+                    menuItem.Click += (s, e) =>
+                    {
+                        int selectedSpuId = (int)((MenuItem)s).Tag;
+                        mainMediaPlayer.SetSpu(selectedSpuId);
+                        Debug.WriteLine("Subtitle track changed to: " + selectedSpuId);
+                    };
+                    SubtitleTrackList.Items.Add(menuItem);
+                }
+            }
+            else
+            {
+                Debug.WriteLine("No subtitle tracks found for current media");
+                SubtitleTrackList.Visibility = Visibility.Collapsed;
+            }
         }
         private void TopMenuOpenFile(object sender, RoutedEventArgs e)
         {
@@ -56,6 +98,10 @@ namespace ADMP
         private void TopMenuOpenTestFile(object sender, RoutedEventArgs e)
         {
             topMenuHandler.OpenTestFile();
+        }
+        private void TopMenuOpenSettings(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Opening settings...");
         }
 
         public void PlayPause(object sender, RoutedEventArgs e)
@@ -69,8 +115,7 @@ namespace ADMP
         {
             if (isPlaying)
             {
-                Debug.WriteLine("updating...");
-                this.ProgressBar.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new PBUpdate(progressBarHandler.UpdateProgressBar));
+                ProgressBar.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new PBUpdate(progressBarHandler.UpdateProgressBar));
             }
         }
 
@@ -110,6 +155,16 @@ namespace ADMP
             {
                 bottomBarHandler.MouseWheelVolumeChange(false);
             }
+        }
+
+        private void ProgressBarSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            progressBarHandler.SliderValueChanged();
+        }
+
+        private void LoadSubtitleFile(object sender, RoutedEventArgs e)
+        {
+            topMenuHandler.LoadSubtitleFile();
         }
     }
 }
