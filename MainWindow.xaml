@@ -80,14 +80,15 @@
                 </Grid.RowDefinitions>
 
                 <Button x:Name="PreviousButton" Grid.Column="1" Grid.Row="0">
-                    <TextBlock FontSize="20" FontWeight="Bold">PREV</TextBlock>
-                </Button>
+					<Image Source="/icons/backwards_btn.png" Width="24" Height="24"/>
+				</Button>
                 <Button x:Name="PlayPauseButton" Click="PlayPause" Grid.Column="2" Grid.Row="0">
-                    <TextBlock x:Name="PlayPauseButtonText" FontSize="24" FontWeight="Bold">PLAY</TextBlock>
-                </Button>
+                    <!--<TextBlock x:Name="PlayPauseButtonText" FontSize="24" FontWeight="Bold">PLAY</TextBlock>-->
+					<Image x:Name="PlayPauseButtonText" Source="/icons/play_btn.png" Width="24" Height="24"/>
+				</Button>
                 <Button x:Name="NextButton" Grid.Column="3" Grid.Row="0">
-                    <TextBlock FontSize="20" FontWeight="Bold">NXT</TextBlock>
-                </Button>
+					<Image Source="/icons/forwards_btn.png" Width="24" Height="24"/>
+				</Button>
                 <Button x:Name="MuteButton" Click="BottomBarMute" Grid.Column="5" Grid.Row="0">
                     <TextBlock x:Name="MuteButtonTextBlock" FontSize="13" FontWeight="Bold">MUTE</TextBlock>
                 </Button>
