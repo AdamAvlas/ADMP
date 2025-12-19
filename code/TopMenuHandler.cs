@@ -13,17 +13,19 @@ using System.Timers;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Threading;
 using SubtitlesParser.Classes;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace ADMP
 {
     public class TopMenuHandler
     {
         MainWindow mainWindow { get; set; }
-        MediaPlayer mediaPlayer { get; set; }
+        LibVLCSharp.Shared.MediaPlayer mediaPlayer { get; set; }
         private Media currentMedia;
         private List<SubtitleItem> currentSubtitles = [];
 
-        public TopMenuHandler(MainWindow mainWindow, MediaPlayer mediaPlayer)
+        public TopMenuHandler(MainWindow mainWindow, LibVLCSharp.Shared.MediaPlayer mediaPlayer)
         {
             this.mainWindow = mainWindow;
             this.mediaPlayer = mediaPlayer;
@@ -75,7 +77,7 @@ namespace ADMP
 
                 string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
 
-                mainWindow.PlayPauseButtonText.Text = "PAUSE";
+                mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
                 mainWindow.TopOverlayFilenameText.Text = fileName;
                 mainWindow.TopOverlayDurationText.Text = mediaDurationString;
                 mainWindow.isPlaying = true;
@@ -188,40 +190,5 @@ namespace ADMP
         }
 
         delegate void labelHideDelegate();
-
-        public async void OpenTestFile()
-        {
-            string filePath = "C:\\Users\\adam\\source\\repos\\ADMP\\media\\test_files\\u_intro.mp4";
-            Debug.WriteLine("File (" + filePath + ") opened successfuly!");
-
-            using (var libvlc = new LibVLC())
-            {
-                Media media = new Media(libvlc, filePath, FromType.FromPath);
-                await media.Parse();
-
-                mediaPlayer.Play(media);
-
-                string[] fileNames = filePath.Split("\\");
-                string fileName = fileNames[fileNames.Length - 1];
-
-                string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
-
-                mainWindow.PlayPauseButtonText.Text = "PAUSE";
-                mainWindow.TopOverlayFilenameText.Text = fileName;
-                mainWindow.TopOverlayDurationText.Text = mediaDurationString;
-                mainWindow.isPlaying = true;
-
-                Timer labelsTimer = new Timer(5000);
-                labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
-                {
-                    mainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
-                    {
-                        mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
-                        mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
-                    }));
-                };
-                labelsTimer.Start();
-            }
-        }
     }
 }

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace ADMP
 {
@@ -26,13 +27,13 @@ namespace ADMP
                 if (mainWindow.mainMediaPlayer.IsPlaying)
                 {
                     mainWindow.mainMediaPlayer.Pause();
-                    mainWindow.PlayPauseButtonText.Text = "PLAY";
+                    mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/play_btn.png", UriKind.Relative)); ;
                     mainWindow.isPlaying = false;
                 }
                 else
                 {
                     mainWindow.mainMediaPlayer.Play();
-                    mainWindow.PlayPauseButtonText.Text = "PAUSE";
+                    mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
                     mainWindow.isPlaying = true;
                 }
             }
@@ -46,15 +47,14 @@ namespace ADMP
                 mainWindow.VolumeSlider.IsEnabled = false;
                 originalVolume = mainWindow.mainMediaPlayer.Volume;
                 mainWindow.mainMediaPlayer.Volume = 0;
-                mainWindow.MuteButtonTextBlock.Text = "UNM";
-
+                mainWindow.MuteButtonImage.Source = new BitmapImage(new Uri("icons/unmute_btn.png", UriKind.Relative));
             }
             else
             {
                 isMuted = false;
                 mainWindow.VolumeSlider.IsEnabled = true;
                 mainWindow.mainMediaPlayer.Volume = originalVolume;
-                mainWindow.MuteButtonTextBlock.Text = "MUTE";
+                mainWindow.MuteButtonImage.Source = new BitmapImage(new Uri("icons/mute_btn.png", UriKind.Relative));
 
             }
         }
