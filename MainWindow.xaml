@@ -12,9 +12,9 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="25"/>
             <RowDefinition Height="12*"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
 
         <Menu VerticalAlignment="Center">
@@ -66,9 +66,9 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="7*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="45"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="45"/>
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="2*"/>
@@ -79,16 +79,16 @@
                 </Grid.RowDefinitions>
 
                 <Button x:Name="PreviousButton" Grid.Column="1" Grid.Row="0">
-					<Image Source="/icons/backwards_btn.png" Width="24" Height="24"/>
+					<Image Source="/icons/backwards_btn.png" Width="30" Height="30"/>
 				</Button>
                 <Button x:Name="PlayPauseButton" Click="PlayPause" Grid.Column="2" Grid.Row="0">
-					<Image x:Name="PlayPauseButtonImage" Source="/icons/play_btn.png" Width="24" Height="24"/>
+					<Image x:Name="PlayPauseButtonImage" Source="/icons/play_btn.png" Width="32" Height="32"/>
 				</Button>
                 <Button x:Name="NextButton" Grid.Column="3" Grid.Row="0">
-					<Image Source="/icons/forwards_btn.png" Width="24" Height="24"/>
+					<Image Source="/icons/forwards_btn.png" Width="30" Height="30"/>
 				</Button>
                 <Button x:Name="MuteButton" Click="BottomBarMute" Grid.Column="5" Grid.Row="0">
-					<Image x:Name="MuteButtonImage" Source="/icons/mute_btn.png" Width="24" Height="24"/>
+					<Image x:Name="MuteButtonImage" Source="/icons/mute_btn.png" Width="30" Height="30"/>
 				</Button>
                 <Slider x:Name="VolumeSlider" ValueChanged="BottomBarVolumeChanged" MouseWheel="VolumeSliderMouseWheelHandler" IsMoveToPointEnabled="True" Grid.Column="6" Grid.Row="0" VerticalAlignment="Center"></Slider>
             </Grid>
