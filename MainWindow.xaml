@@ -20,7 +20,6 @@
         <Menu VerticalAlignment="Center">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Click="TopMenuOpenFile" />
-                <!--<MenuItem Header="_Open testfile" Click="TopMenuOpenTestFile" />-->
                 <Separator />
                 <MenuItem Header="_Close app"  Click="AppQuit" />
             </MenuItem>
@@ -83,15 +82,14 @@
 					<Image Source="/icons/backwards_btn.png" Width="24" Height="24"/>
 				</Button>
                 <Button x:Name="PlayPauseButton" Click="PlayPause" Grid.Column="2" Grid.Row="0">
-                    <!--<TextBlock x:Name="PlayPauseButtonText" FontSize="24" FontWeight="Bold">PLAY</TextBlock>-->
-					<Image x:Name="PlayPauseButtonText" Source="/icons/play_btn.png" Width="24" Height="24"/>
+					<Image x:Name="PlayPauseButtonImage" Source="/icons/play_btn.png" Width="24" Height="24"/>
 				</Button>
                 <Button x:Name="NextButton" Grid.Column="3" Grid.Row="0">
 					<Image Source="/icons/forwards_btn.png" Width="24" Height="24"/>
 				</Button>
                 <Button x:Name="MuteButton" Click="BottomBarMute" Grid.Column="5" Grid.Row="0">
-                    <TextBlock x:Name="MuteButtonTextBlock" FontSize="13" FontWeight="Bold">MUTE</TextBlock>
-                </Button>
+					<Image x:Name="MuteButtonImage" Source="/icons/mute_btn.png" Width="24" Height="24"/>
+				</Button>
                 <Slider x:Name="VolumeSlider" ValueChanged="BottomBarVolumeChanged" MouseWheel="VolumeSliderMouseWheelHandler" IsMoveToPointEnabled="True" Grid.Column="6" Grid.Row="0" VerticalAlignment="Center"></Slider>
             </Grid>
         </Border>

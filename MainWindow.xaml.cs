@@ -52,7 +52,7 @@ namespace ADMP
                 }
                 Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
                 {
-                    PlayPauseButtonText.Text = "PLAY";
+                    PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/play_icon.png", UriKind.Relative));
                     isPlaying = false;
                 }));
             };
@@ -95,10 +95,7 @@ namespace ADMP
         {
             topMenuHandler.OpenFile();
         }
-        private void TopMenuOpenTestFile(object sender, RoutedEventArgs e)
-        {
-            topMenuHandler.OpenTestFile();
-        }
+
         private void TopMenuOpenSettings(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("Opening settings...");
