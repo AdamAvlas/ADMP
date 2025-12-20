@@ -20,7 +20,7 @@ namespace ADMP
     {
         MainWindow mainWindow { get; set; }
         MediaPlayer mediaPlayer { get; set; }
-        private Media currentMedia;
+        //private Media currentMedia;
         private List<SubtitleItem> currentSubtitles = [];
 
         public TopMenuHandler(MainWindow mainWindow, MediaPlayer mediaPlayer)
@@ -57,40 +57,35 @@ namespace ADMP
 
             Debug.WriteLine("File (" + filePath + ") opened successfuly!");
 
-            using (var libvlc = mainWindow.libVLC)
+            Media media = new Media(mainWindow.libVLC, filePath, FromType.FromPath);
+            mainWindow.currentMedia = media;
+
+            await media.Parse();
+
+            mediaPlayer.Play(media);
+
+            _ = mainWindow.GenerateSubtitleTracks();
+
+            string[] fileNames = filePath.Split("\\");
+            string fileName = fileNames[fileNames.Length - 1];
+
+            string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
+
+            mainWindow.PlayPauseButtonText.Text = "PAUSE";
+            mainWindow.TopOverlayFilenameText.Text = fileName;
+            mainWindow.TopOverlayDurationText.Text = mediaDurationString;
+            mainWindow.isPlaying = true;
+
+            Timer labelsTimer = new Timer(5000);
+            labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
             {
-                Media media = new Media(libvlc, filePath, FromType.FromPath);
-                currentMedia = media;
-
-                await media.Parse();
-
-                //string subtitlePath = "file:///C:\\Users\\Adam\\Downloads\\2_English(3).srt";
-
-                mediaPlayer.Play(media);
-
-                mainWindow.GenerateSubtitleTracks();
-
-                string[] fileNames = filePath.Split("\\");
-                string fileName = fileNames[fileNames.Length - 1];
-
-                string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
-
-                mainWindow.PlayPauseButtonText.Text = "PAUSE";
-                mainWindow.TopOverlayFilenameText.Text = fileName;
-                mainWindow.TopOverlayDurationText.Text = mediaDurationString;
-                mainWindow.isPlaying = true;
-
-                Timer labelsTimer = new Timer(5000);
-                labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
+                mainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
                 {
-                    mainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
-                    {
-                        mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
-                        mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
-                    }));
-                };
-                labelsTimer.Start();
-            }
+                    mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
+                    mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
+                }));
+            };
+            labelsTimer.Start();
         }
 
         public async void LoadSubtitleFile()
@@ -155,7 +150,7 @@ namespace ADMP
         }
         public void SubtitleUpdateCall(object? sender, ElapsedEventArgs e)
         {
-            if (mainWindow.isPlaying)
+            if (mainWindow.isPlaying && mainWindow.currentMedia != null)
             {
                 mainWindow.SubtitleDisplay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SubUpdateDelegate(SubtitleUpdate));
             }
