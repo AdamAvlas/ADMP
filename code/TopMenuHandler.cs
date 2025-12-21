@@ -1,20 +1,22 @@
-﻿using Microsoft.Win32;
+﻿using ADMP.code;
+using LibVLCSharp.Shared;
+using Microsoft.Win32;
+using SubtitlesParser.Classes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
-using System.Windows;
-using System.Diagnostics;
-using LibVLCSharp.Shared;
-using ADMP.code;
 using System.Timers;
-using System.Security.Cryptography.X509Certificates;
-using System.Windows.Threading;
-using SubtitlesParser.Classes;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using static ADMP.MainWindow;
 
 namespace ADMP
 {
@@ -22,8 +24,6 @@ namespace ADMP
     {
         MainWindow mainWindow { get; set; }
         LibVLCSharp.Shared.MediaPlayer mediaPlayer { get; set; }
-        private Media currentMedia;
-        private List<SubtitleItem> currentSubtitles = [];
 
         public TopMenuHandler(MainWindow mainWindow, LibVLCSharp.Shared.MediaPlayer mediaPlayer)
         {
@@ -66,17 +66,17 @@ namespace ADMP
 
             mediaPlayer.Play(media);
 
-            _ = mainWindow.GenerateSubtitleTracks();
+            _ = mainWindow.GetEmbeddedSubtitleTracks();
 
             string[] fileNames = filePath.Split("\\");
             string fileName = fileNames[fileNames.Length - 1];
 
             string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
 
-                mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
-                mainWindow.TopOverlayFilenameText.Text = fileName;
-                mainWindow.TopOverlayDurationText.Text = mediaDurationString;
-                mainWindow.isPlaying = true;
+            mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
+            mainWindow.TopOverlayFilenameText.Text = fileName;
+            mainWindow.TopOverlayDurationText.Text = mediaDurationString;
+            mainWindow.isPlaying = true;
 
             Timer labelsTimer = new Timer(5000);
             labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
@@ -90,9 +90,10 @@ namespace ADMP
             labelsTimer.Start();
         }
 
-        public async void LoadSubtitleFile()
+        //function has an optional parameter to be called without opening an open file dialog
+        public async Task LoadSubtitleFile(string? filePath = null)
         {
-            if (!mediaPlayer.IsPlaying)
+            if (mainWindow.currentMedia == null)
             {
                 Debug.WriteLine("Cannot load subtitle file, because no media is playing!");
                 return;
@@ -127,13 +128,7 @@ namespace ADMP
                 try
                 {
                     var mostLikelyFormat = parser.GetMostLikelyFormat(subtitlePath);
-                    Debug.WriteLine("Most likely subtitle format: " + mostLikelyFormat.Name);
                     items = parser.ParseStream(fileStream, Encoding.UTF8, mostLikelyFormat);
-                    Debug.WriteLine("Parsed " + items.Count + " subtitle items.");
-
-                    Debug.WriteLine($"Line: {items[0].Lines[0]};ST: {items[0].StartTime};ET: {items[0].EndTime}");
-
-                    currentSubtitles = items;
                 }
                 catch (Exception ex)
                 {
@@ -141,6 +136,26 @@ namespace ADMP
                     return;
                 }
             }
+            mainWindow.currentExternalSubtitles = items;
+
+            //making sure the external subtitles are added BEHIND the embedded ones
+            int lastTag = 1;
+            if (mainWindow.currentSubtitles.Count > 0)
+            {
+                Debug.WriteLine("Existing subtitle tracks found, determining last tag...");
+                lastTag = mainWindow.currentSubtitles!.MaxBy(t => t.Tag).Tag;
+            }
+            var subtitleTrack = new MainWindow.SubtitleTrack(lastTag, "external", false)
+            {
+                SubtitleItems = items
+            };
+            mainWindow.currentSubtitles.Add(subtitleTrack);
+            Debug.WriteLine("current subtitle count: " + mainWindow.currentSubtitles.Count);
+
+            _ = mainWindow.GenerateSubtitleTracks();
+
+            //disabling embedded subtitles
+            mainWindow.mainMediaPlayer.SetSpu(-1);
 
             Timer subUpdateTimer = new(100)
             {
@@ -152,7 +167,7 @@ namespace ADMP
         }
         public void SubtitleUpdateCall(object? sender, ElapsedEventArgs e)
         {
-            if (mainWindow.isPlaying && mainWindow.currentMedia != null)
+            if (mainWindow.currentMedia != null && mainWindow.isPlaying)
             {
                 mainWindow.SubtitleDisplay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SubUpdateDelegate(SubtitleUpdate));
             }
@@ -167,12 +182,12 @@ namespace ADMP
             long actualPosition = Convert.ToInt64(Convert.ToDouble(duration) * position);
 
             int temp = 0;
-            if (currentSubtitles.Count > 0)
+            if (mainWindow.currentExternalSubtitles.Count > 0)
             {
-                temp = currentSubtitles[0].StartTime;
+                temp = mainWindow.currentExternalSubtitles[0].StartTime;
             }
 
-            foreach (SubtitleItem subtitle in currentSubtitles)
+            foreach (SubtitleItem subtitle in mainWindow.currentExternalSubtitles)
             {
                 if (actualPosition >= subtitle.StartTime && actualPosition <= subtitle.EndTime)
                 {

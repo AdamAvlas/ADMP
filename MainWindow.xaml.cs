@@ -1,4 +1,9 @@
-﻿using System;
+﻿using ADMP.code;
+using LibVLCSharp;
+using LibVLCSharp.Shared;
+using LibVLCSharp.Shared.Structures;
+using SubtitlesParser.Classes;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -14,10 +19,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using ADMP.code;
-using LibVLCSharp;
-using LibVLCSharp.Shared;
-using LibVLCSharp.Shared.Structures;
 
 namespace ADMP
 {
@@ -31,6 +32,9 @@ namespace ADMP
         public bool isPlaying = false;
         public List<Timer> activeTimers = [];
         public Media? currentMedia = null;
+        public List<SubtitleTrack> currentSubtitles = [];
+        public int currentSubtitleIndex = 0;
+        public List<SubtitleItem> currentExternalSubtitles = [];
 
         public MainWindow()
         {
@@ -65,25 +69,21 @@ namespace ADMP
 
             this.VolumeSlider.Value = Convert.ToDouble(mainMediaPlayer.Volume) / 10;
         }
-        public async Task GenerateSubtitleTracks()
+        public async Task GetEmbeddedSubtitleTracks()
         {
             await Task.Delay(1000);
             if (mainMediaPlayer.SpuCount > 0)
             {
                 SubtitleTrackList.Visibility = Visibility.Visible;
-                Debug.WriteLine("Generating subtitle tracks...");
+                Debug.WriteLine("Generating embedded subtitle tracks...");
                 TrackDescription[] subtitleDescriptionList = mainMediaPlayer.SpuDescription;
                 foreach (TrackDescription subtitleTrack in subtitleDescriptionList)
                 {
-                    MenuItem menuItem = new() { Header = subtitleTrack.Name, Tag = subtitleTrack.Id };
-                    menuItem.Click += (s, e) =>
-                    {
-                        int selectedSpuId = (int)((MenuItem)s).Tag;
-                        mainMediaPlayer.SetSpu(selectedSpuId);
-                        Debug.WriteLine("Subtitle track changed to: " + selectedSpuId);
-                    };
-                    SubtitleTrackList.Items.Add(menuItem);
+                    var subTrack = new SubtitleTrack(subtitleTrack.Id, subtitleTrack.Name, true);
+                    currentSubtitles.Add(subTrack);
                 }
+
+                _ = GenerateSubtitleTracks();
             }
             else
             {
@@ -91,6 +91,59 @@ namespace ADMP
                 SubtitleTrackList.Visibility = Visibility.Collapsed;
             }
         }
+        public async Task GenerateSubtitleTracks()
+        {
+            if (currentSubtitles.Count == 0)
+            {
+                return;
+            }
+
+            SubtitleTrackList.Visibility = Visibility.Visible;
+
+            //await Task.Delay(100);
+            Debug.WriteLine("re/generating subtitle tracks...");
+            bool areAllEmbedded = true;
+            SubtitleTrackList.Items.Clear();
+            foreach (var item in currentSubtitles)
+            {
+                MenuItem menuItem = new() { Header = item.Name, Tag = item.Tag };
+                if (item.IsEmbedded)
+                {
+                    menuItem.Click += (s, e) =>
+                    {
+                        currentExternalSubtitles = [];
+                        mainMediaPlayer.SetSpu(item.Tag);
+                    };
+                }
+                else
+                {
+                    menuItem.Click += (s, e) =>
+                    {
+                        mainMediaPlayer.SetSpu(-1);
+                        currentExternalSubtitles = item.SubtitleItems!;
+                    };
+                    areAllEmbedded = false;
+                }
+                SubtitleTrackList.Items.Add(menuItem);
+            }
+            if (areAllEmbedded == false)
+            {
+                MenuItem menuItem = new() { Header = "Disable subtitles", Tag = 0 };
+                menuItem.Click += (s, e) =>
+                {
+                    DisableSubtitles();
+                };
+                SubtitleTrackList.Items.Insert(0, menuItem);
+            }
+        }
+
+        public void DisableSubtitles()
+        {
+            Debug.WriteLine("Disabling ALL subtitles");
+            mainMediaPlayer.SetSpu(-1);
+            currentExternalSubtitles = [];
+        }
+
         private void TopMenuOpenFile(object sender, RoutedEventArgs e)
         {
             topMenuHandler.OpenFile();
@@ -161,7 +214,15 @@ namespace ADMP
 
         private void LoadSubtitleFile(object sender, RoutedEventArgs e)
         {
-            topMenuHandler.LoadSubtitleFile();
+            _ = topMenuHandler.LoadSubtitleFile();
         }
+
+        public class SubtitleTrack(int tag, string name, bool isEmbedded)
+        {
+            public int Tag { get; set; } = tag;
+            public string Name { get; set; } = name;
+            public bool IsEmbedded { get; set; } = isEmbedded;
+            public List<SubtitleItem>? SubtitleItems { get; set; }
     }
+}
 }
