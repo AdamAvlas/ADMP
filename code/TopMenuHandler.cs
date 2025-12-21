@@ -73,10 +73,10 @@ namespace ADMP
 
             string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
 
-                mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
-                mainWindow.TopOverlayFilenameText.Text = fileName;
-                mainWindow.TopOverlayDurationText.Text = mediaDurationString;
-                mainWindow.isPlaying = true;
+            mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
+            mainWindow.TopOverlayFilenameText.Text = fileName;
+            mainWindow.TopOverlayDurationText.Text = mediaDurationString;
+            mainWindow.isPlaying = true;
 
             Timer labelsTimer = new Timer(5000);
             labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
