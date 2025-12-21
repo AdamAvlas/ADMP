@@ -10,6 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="icons\backwards_btn.png" />
+    <None Remove="icons\forwards_btn.png" />
+    <None Remove="icons\main_icon.png" />
+    <None Remove="icons\mute_btn.png" />
+    <None Remove="icons\pause_btn.png" />
+    <None Remove="icons\play_btn.png" />
+    <None Remove="icons\unmute_btn.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="icons\main_icon.ico" />
   </ItemGroup>
 
@@ -22,6 +32,18 @@
 
   <ItemGroup>
     <Folder Include="windows\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="icons\backwards_btn.png" />
+    <Resource Include="icons\forwards_btn.png" />
+    <Resource Include="icons\main_icon.png" />
+    <Resource Include="icons\mute_btn.png" />
+    <Resource Include="icons\pause_btn.png" />
+    <Resource Include="icons\play_btn.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icons\unmute_btn.png" />
   </ItemGroup>
 
 </Project>
