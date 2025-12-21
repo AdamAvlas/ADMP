@@ -26,10 +26,11 @@ namespace ADMP
         public BottomBarHandler bottomBarHandler;
         public TopMenuHandler topMenuHandler;
         public ProgressBarHandler progressBarHandler;
-        public LibVLC libVLC = new LibVLC();
+        public LibVLC libVLC = new();
         public MediaPlayer mainMediaPlayer;
         public bool isPlaying = false;
         public List<Timer> activeTimers = [];
+        public Media? currentMedia = null;
 
         public MainWindow()
         {
@@ -42,7 +43,6 @@ namespace ADMP
             topMenuHandler = new TopMenuHandler(this, mainMediaPlayer);
             progressBarHandler = new ProgressBarHandler(this);
 
-            //mainMediaPlayer.PositionChanged += new EventHandler<MediaPlayerPositionChangedEventArgs>(ProgressBarSliderUpdate);
             mainMediaPlayer.EndReached += (s, e) =>
             {
                 Debug.WriteLine("Media ended.");
