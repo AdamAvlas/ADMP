@@ -29,12 +29,20 @@ namespace ADMP
                     mainWindow.mainMediaPlayer.Pause();
                     mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/play_btn.png", UriKind.Relative)); ;
                     mainWindow.isPlaying = false;
+                    foreach (var timer in mainWindow.activeTimers)
+                    {
+                        timer.Stop();
+                    }
                 }
                 else
                 {
                     mainWindow.mainMediaPlayer.Play();
                     mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
                     mainWindow.isPlaying = true;
+                    foreach (var timer in mainWindow.activeTimers)
+                    {
+                        timer.Start();
+                    }
                 }
             }
         }
