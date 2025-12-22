@@ -93,7 +93,7 @@ namespace ADMP
         //function has an optional parameter to be called without opening an open file dialog
         public async Task LoadSubtitleFile(string? filePath = null)
         {
-            if (mainWindow.currentMedia == null)
+            if (mainWindow.currentMedia is null)
             {
                 Debug.WriteLine("Cannot load subtitle file, because no media is playing!");
                 return;
@@ -108,7 +108,7 @@ namespace ADMP
 
             bool? result = ofd.ShowDialog();
 
-            if (!result == true)
+            if (result == false)
             {
                 Debug.WriteLine("Subtitle file selection canceled/was unsuccessful");
                 return;

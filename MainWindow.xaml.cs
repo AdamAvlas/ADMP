@@ -217,12 +217,22 @@ namespace ADMP
             _ = topMenuHandler.LoadSubtitleFile();
         }
 
+        public void SkipForward(object sender, RoutedEventArgs e)
+        {
+            bottomBarHandler.SkipForward();
+        }
+
+        public void SkipBackward(object sender, RoutedEventArgs e)
+        {
+            bottomBarHandler.SkipBackward();
+        }
+
         public class SubtitleTrack(int tag, string name, bool isEmbedded)
         {
             public int Tag { get; set; } = tag;
             public string Name { get; set; } = name;
             public bool IsEmbedded { get; set; } = isEmbedded;
             public List<SubtitleItem>? SubtitleItems { get; set; }
+        }
     }
-}
 }
