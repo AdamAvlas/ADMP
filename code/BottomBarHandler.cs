@@ -84,5 +84,35 @@ namespace ADMP
                 mainWindow.VolumeSlider.Value = mainWindow.VolumeSlider.Value - 0.2;
             }
         }
+
+        public void SkipForward()
+        {
+            if (mainWindow.mainMediaPlayer.Media is null)
+            {
+                return;
+            }
+
+            float currentPosition = mainWindow.mainMediaPlayer.Position;
+            float newPosition = currentPosition + (10000f / mainWindow.currentMedia.Duration);
+            if (newPosition <= 1f)
+            {
+                mainWindow.mainMediaPlayer.Position = newPosition;
+            }
+        }
+
+        public void SkipBackward()
+        {
+            if (mainWindow.mainMediaPlayer.Media is null)
+            {
+                return;
+            }
+
+            float currentPosition = mainWindow.mainMediaPlayer.Position;
+            float newPosition = currentPosition - (10000f / mainWindow.currentMedia.Duration);
+            if (newPosition >= 0f)
+            {
+                mainWindow.mainMediaPlayer.Position = newPosition;
+            }
+        }
     }
 }

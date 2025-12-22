@@ -78,13 +78,13 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
 
-                <Button x:Name="PreviousButton" Grid.Column="1" Grid.Row="0">
+				<Button x:Name="PreviousButton" Grid.Column="1" Grid.Row="0" Click="SkipBackward">
 					<Image Source="/icons/backwards_btn.png" Width="30" Height="30"/>
 				</Button>
                 <Button x:Name="PlayPauseButton" Click="PlayPause" Grid.Column="2" Grid.Row="0">
 					<Image x:Name="PlayPauseButtonImage" Source="/icons/play_btn.png" Width="32" Height="32"/>
 				</Button>
-                <Button x:Name="NextButton" Grid.Column="3" Grid.Row="0">
+                <Button x:Name="NextButton" Grid.Column="3" Grid.Row="0" Click="SkipForward">
 					<Image Source="/icons/forwards_btn.png" Width="30" Height="30"/>
 				</Button>
                 <Button x:Name="MuteButton" Click="BottomBarMute" Grid.Column="5" Grid.Row="0">
