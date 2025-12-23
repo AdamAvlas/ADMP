@@ -7,33 +7,29 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using static ADMP.MainWindow;
 
 namespace ADMP
 {
     public class TopMenuHandler
     {
-        MainWindow mainWindow { get; set; }
-        LibVLCSharp.Shared.MediaPlayer mediaPlayer { get; set; }
+        MainWindow MainWindow { get; set; }
+        LibVLCSharp.Shared.MediaPlayer MediaPlayer { get; set; }
 
         public TopMenuHandler(MainWindow mainWindow, LibVLCSharp.Shared.MediaPlayer mediaPlayer)
         {
-            this.mainWindow = mainWindow;
-            this.mediaPlayer = mediaPlayer;
+            this.MainWindow = mainWindow;
+            this.MediaPlayer = mediaPlayer;
         }
-        //this function has an optional parameter, if the filepath isnt sepcified, it opens an open file dialog
-        public async void OpenFile(string? filePath = null)
+
+        public async void OpenFile(string? filePath = null)//function has an optional parameter, if the filepath isnt sepcified, it opens an open file dialog
         {
-            //string? filePath = "";
             Debug.WriteLine("Attempting to open file...");
             bool wasFilePathSet = true;//so that I know whether the filepath was set from ofd or not
 
@@ -66,17 +62,17 @@ namespace ADMP
 
             Debug.WriteLine($"File ({filePath}) opened successfuly!");
 
-            Media media = new(mainWindow.libVLC, filePath, FromType.FromPath);
-            mainWindow.currentMedia = media;
+            Media media = new(MainWindow.libVLC, filePath, FromType.FromPath);
+            MainWindow.currentMedia = media;
 
             await media.Parse();
 
-            mediaPlayer.Play(media);
-            //adding to recent files, BUT only if it's not already being opened from the recent file list
-            if (!wasFilePathSet)
+            MediaPlayer.Play(media);
+
+            if (!wasFilePathSet)//adding to recent files, BUT only if it's not already being opened from the recent file list
             {
                 bool isAlreadyInRecent = false;
-                foreach (string existingFilePath in mainWindow.settingsHandler.AppSettings.LastOpened)
+                foreach (string existingFilePath in MainWindow.settingsHandler.AppSettings.LastOpened)
                 {
                     if (filePath == existingFilePath)
                     {
@@ -90,39 +86,38 @@ namespace ADMP
                     return;
                 }
                 Debug.WriteLine("Adding file to recent files list...");
-                mainWindow.settingsHandler.AppSettings.AddRecent(filePath);
-                mainWindow.AddToRecentFilesList(filePath);
-                mainWindow.RecentlyOpenedList.Visibility = Visibility.Visible;
+                MainWindow.settingsHandler.AppSettings.AddRecent(filePath);
+                MainWindow.AddToRecentFilesList(filePath);
+                MainWindow.RecentlyOpenedList.Visibility = Visibility.Visible;
             }
             //getting embedded subtitles(if there are any)
-            _ = mainWindow.GetEmbeddedSubtitleTracks();
+            _ = MainWindow.GetEmbeddedSubtitleTracks();
 
             string[] fileNames = filePath.Split("\\");
             string fileName = fileNames[fileNames.Length - 1];
 
             string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
 
-            mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
-            mainWindow.TopOverlayFilenameText.Text = fileName;
-            mainWindow.TopOverlayDurationText.Text = mediaDurationString;
-            mainWindow.isPlaying = true;
+            MainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
+            MainWindow.TopOverlayFilenameText.Text = fileName;
+            MainWindow.TopOverlayDurationText.Text = mediaDurationString;
+            MainWindow.isPlaying = true;
 
             Timer labelsTimer = new Timer(5000);
             labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
             {
-                mainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
+                MainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
                 {
-                    mainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
-                    mainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
+                    MainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
+                    MainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
                 }));
             };
             labelsTimer.Start();
         }
 
-        //function has an optional parameter to be called without opening an open file dialog
         public async Task LoadSubtitleFile()
         {
-            if (mainWindow.currentMedia is null)
+            if (MainWindow.currentMedia is null)
             {
                 Debug.WriteLine("Cannot load subtitle file, because no media is playing!");
                 return;
@@ -165,26 +160,24 @@ namespace ADMP
                     return;
                 }
             }
-            mainWindow.currentExternalSubtitles = items;
+            MainWindow.currentExternalSubtitles = items;
 
-            //making sure the external subtitles are added BEHIND the embedded ones
             int lastTag = 1;
-            if (mainWindow.currentSubtitles.Count > 0)
+            if (MainWindow.currentSubtitles.Count > 0)
             {
-                Debug.WriteLine("Existing subtitle tracks found, determining last tag...");
-                lastTag = mainWindow.currentSubtitles!.MaxBy(t => t.Tag).Tag;
+                Debug.WriteLine("Existing subtitle tracks found, determining last tag..."); //making sure the external subtitles are added BEHIND the embedded ones
+                lastTag = MainWindow.currentSubtitles!.MaxBy(t => t.Tag).Tag;
             }
             var subtitleTrack = new MainWindow.SubtitleTrack(lastTag, "external", false)
             {
                 SubtitleItems = items
             };
-            mainWindow.currentSubtitles.Add(subtitleTrack);
-            Debug.WriteLine("current subtitle count: " + mainWindow.currentSubtitles.Count);
+            MainWindow.currentSubtitles.Add(subtitleTrack);
+            Debug.WriteLine("current subtitle count: " + MainWindow.currentSubtitles.Count);
 
-            _ = mainWindow.GenerateSubtitleTracks();
+            _ = MainWindow.GenerateSubtitleTracks();
 
-            //disabling embedded subtitles
-            mainWindow.mainMediaPlayer.SetSpu(-1);
+            MainWindow.mainMediaPlayer.SetSpu(-1);//disabling embedded subtitles
 
             Timer subUpdateTimer = new(100)
             {
@@ -192,40 +185,40 @@ namespace ADMP
             };
             subUpdateTimer.Elapsed += SubtitleUpdateCall;
             subUpdateTimer.Start();
-            mainWindow.activeTimers.Add(subUpdateTimer);
+            MainWindow.activeTimers.Add(subUpdateTimer);
         }
         public void SubtitleUpdateCall(object? sender, ElapsedEventArgs e)
         {
-            if (mainWindow.currentMedia != null && mainWindow.isPlaying)
+            if (MainWindow.currentMedia != null && MainWindow.isPlaying)
             {
-                mainWindow.SubtitleDisplay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SubUpdateDelegate(SubtitleUpdate));
+                MainWindow.SubtitleDisplay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SubUpdateDelegate(SubtitleUpdate));
             }
         }
         public delegate void SubUpdateDelegate();
         private void SubtitleUpdate()
         {
 
-            double position = Convert.ToDouble(mainWindow.mainMediaPlayer.Position);
-            long duration = mainWindow.mainMediaPlayer.Media.Duration;
+            double position = Convert.ToDouble(MainWindow.mainMediaPlayer.Position);
+            long duration = MainWindow.mainMediaPlayer.Media.Duration;
 
             long actualPosition = Convert.ToInt64(Convert.ToDouble(duration) * position);
 
             int temp = 0;
-            if (mainWindow.currentExternalSubtitles.Count > 0)
+            if (MainWindow.currentExternalSubtitles.Count > 0)
             {
-                temp = mainWindow.currentExternalSubtitles[0].StartTime;
+                temp = MainWindow.currentExternalSubtitles[0].StartTime;
             }
 
-            foreach (SubtitleItem subtitle in mainWindow.currentExternalSubtitles)
+            foreach (SubtitleItem subtitle in MainWindow.currentExternalSubtitles)
             {
                 if (actualPosition >= subtitle.StartTime && actualPosition <= subtitle.EndTime)
                 {
-                    mainWindow.SubtitleDisplay.Visibility = Visibility.Visible;
-                    mainWindow.SubtitleDisplay.Text = string.Join("\n", subtitle.Lines);
+                    MainWindow.SubtitleDisplay.Visibility = Visibility.Visible;
+                    MainWindow.SubtitleDisplay.Text = string.Join("\n", subtitle.Lines);
                     return;
                 }
             }
-            mainWindow.SubtitleDisplay.Visibility = Visibility.Hidden;
+            MainWindow.SubtitleDisplay.Visibility = Visibility.Hidden;
         }
 
         delegate void labelHideDelegate();
