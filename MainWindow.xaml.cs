@@ -60,7 +60,7 @@ namespace ADMP
                 Debug.WriteLine("Generating recent files list...");
                 RecentlyOpenedList.Visibility = Visibility.Visible;
                 int tag = 1;
-                foreach (var item in settingsHandler.AppSettings.LastOpened)
+                foreach (string item in settingsHandler.AppSettings.LastOpened)
                 {
                     MenuItem menuItem = new() { Header = item, Tag = tag };
                     menuItem.Click += (s, e) =>
@@ -74,7 +74,7 @@ namespace ADMP
                 }
             }
 
-            Timer progressUpdateTimer = new Timer(1000);
+            Timer progressUpdateTimer = new(1000);
             activeTimers.Add(progressUpdateTimer);
             progressUpdateTimer.AutoReset = true;
             progressUpdateTimer.Elapsed += ProgressBarSliderUpdate;
@@ -85,7 +85,7 @@ namespace ADMP
             mainMediaPlayer.EndReached += (s, e) =>
             {
                 Debug.WriteLine("Media ended.");
-                foreach (var timer in activeTimers)
+                foreach (Timer timer in activeTimers)
                 {
                     timer.Stop();
                 }
@@ -110,7 +110,7 @@ namespace ADMP
                 TrackDescription[] subtitleDescriptionList = mainMediaPlayer.SpuDescription;
                 foreach (TrackDescription subtitleTrack in subtitleDescriptionList)
                 {
-                    var subTrack = new SubtitleTrack(subtitleTrack.Id, subtitleTrack.Name, true);
+                    SubtitleTrack subTrack = new(subtitleTrack.Id, subtitleTrack.Name, true);
                     currentSubtitles.Add(subTrack);
                 }
 
@@ -135,7 +135,7 @@ namespace ADMP
             Debug.WriteLine("re/generating subtitle tracks...");
             bool areAllEmbedded = true;
             SubtitleTrackList.Items.Clear();
-            foreach (var item in currentSubtitles)
+            foreach (SubtitleTrack item in currentSubtitles)
             {
                 MenuItem menuItem = new() { Header = item.Name, Tag = item.Tag };
                 if (item.IsEmbedded)
@@ -276,7 +276,7 @@ namespace ADMP
 
             settingsHandler.AppSettings.LastOpened.Clear();
             List<MenuItem> itemsToRemove = [];
-            foreach (var item in RecentlyOpenedList.Items)
+            foreach (object? item in RecentlyOpenedList.Items)
             {
                 if (item is not MenuItem)//cause theres a separator in there,and it WILL crash badly if this isnt here
                 {
@@ -288,7 +288,7 @@ namespace ADMP
                     itemsToRemove.Add(menuItem);
                 }
             }
-            foreach (var item in itemsToRemove)//note: two loops required,cause you cant remove items from a collection youre iterating through
+            foreach (MenuItem item in itemsToRemove)//note: two loops required,cause you cant remove items from a collection youre iterating through
             {
                 RecentlyOpenedList.Items.Remove(item);
             }

@@ -103,7 +103,7 @@ namespace ADMP
             MainWindow.TopOverlayDurationText.Text = mediaDurationString;
             MainWindow.isPlaying = true;
 
-            Timer labelsTimer = new Timer(5000);
+            Timer labelsTimer = new(5000);
             labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
             {
                 MainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
@@ -144,14 +144,14 @@ namespace ADMP
                 Debug.WriteLine("Subtitle file not found!");
                 return;
             }
-            var parser = new SubtitlesParser.Classes.Parsers.SubParser();
+            SubtitlesParser.Classes.Parsers.SubParser parser = new();
             List<SubtitleItem> items = [];
 
-            using (var fileStream = File.OpenRead(subtitlePath))
+            using (FileStream fileStream = File.OpenRead(subtitlePath))
             {
                 try
                 {
-                    var mostLikelyFormat = parser.GetMostLikelyFormat(subtitlePath);
+                    SubtitlesFormat mostLikelyFormat = parser.GetMostLikelyFormat(subtitlePath);
                     items = parser.ParseStream(fileStream, Encoding.UTF8, mostLikelyFormat);
                 }
                 catch (Exception ex)
@@ -168,7 +168,7 @@ namespace ADMP
                 Debug.WriteLine("Existing subtitle tracks found, determining last tag..."); //making sure the external subtitles are added BEHIND the embedded ones
                 lastTag = MainWindow.currentSubtitles!.MaxBy(t => t.Tag).Tag;
             }
-            var subtitleTrack = new MainWindow.SubtitleTrack(lastTag, "external", false)
+            MainWindow.SubtitleTrack subtitleTrack = new(lastTag, "external", false)
             {
                 SubtitleItems = items
             };
