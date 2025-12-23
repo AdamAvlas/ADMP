@@ -30,26 +30,33 @@ namespace ADMP
             this.mainWindow = mainWindow;
             this.mediaPlayer = mediaPlayer;
         }
-        public async void OpenFile()
+        //this function has an optional parameter, if the filepath isnt sepcified, it opens an open file dialog
+        public async void OpenFile(string? filePath = null)
         {
-            string? filePath = "";
+            //string? filePath = "";
             Debug.WriteLine("Attempting to open file...");
+            bool wasFilePathSet = true;//so that I know whether the filepath was set from ofd or not
 
-            OpenFileDialog ofd = new()
+            if (filePath is null)
             {
-                Multiselect = false,
-                DefaultExt = ".mp4",
-                Filter = "Video files|*.mp4;*.mkv"
-            };
+                OpenFileDialog ofd = new()
+                {
+                    Multiselect = false,
+                    DefaultExt = ".mp4",
+                    Filter = "Video files|*.mp4;*.mkv"
+                };
 
-            bool? result = ofd.ShowDialog();
+                bool? result = ofd.ShowDialog();
 
-            if (!result == true)
-            {
-                Debug.WriteLine("File opening canceled/was unsuccessful");
+                if (result is not null && !(Boolean)result)
+                {
+                    Debug.WriteLine("File opening canceled/was unsuccessful");
+                    return;
+                }
+
+                filePath = ofd.FileName;
+                wasFilePathSet = false;
             }
-
-            filePath = ofd.FileName;
 
             if (!File.Exists(filePath))
             {
@@ -57,15 +64,37 @@ namespace ADMP
                 return;
             }
 
-            Debug.WriteLine("File (" + filePath + ") opened successfuly!");
+            Debug.WriteLine($"File ({filePath}) opened successfuly!");
 
-            Media media = new Media(mainWindow.libVLC, filePath, FromType.FromPath);
+            Media media = new(mainWindow.libVLC, filePath, FromType.FromPath);
             mainWindow.currentMedia = media;
 
             await media.Parse();
 
             mediaPlayer.Play(media);
-
+            //adding to recent files, BUT only if it's not already being opened from the recent file list
+            if (!wasFilePathSet)
+            {
+                bool isAlreadyInRecent = false;
+                foreach (string existingFilePath in mainWindow.settingsHandler.AppSettings.LastOpened)
+                {
+                    if (filePath == existingFilePath)
+                    {
+                        isAlreadyInRecent = true;
+                        break;
+                    }
+                }
+                if (isAlreadyInRecent)
+                {
+                    Debug.WriteLine("File is already in recent files list, not adding again...");
+                    return;
+                }
+                Debug.WriteLine("Adding file to recent files list...");
+                mainWindow.settingsHandler.AppSettings.AddRecent(filePath);
+                mainWindow.AddToRecentFilesList(filePath);
+                mainWindow.RecentlyOpenedList.Visibility = Visibility.Visible;
+            }
+            //getting embedded subtitles(if there are any)
             _ = mainWindow.GetEmbeddedSubtitleTracks();
 
             string[] fileNames = filePath.Split("\\");
@@ -91,7 +120,7 @@ namespace ADMP
         }
 
         //function has an optional parameter to be called without opening an open file dialog
-        public async Task LoadSubtitleFile(string? filePath = null)
+        public async Task LoadSubtitleFile()
         {
             if (mainWindow.currentMedia is null)
             {

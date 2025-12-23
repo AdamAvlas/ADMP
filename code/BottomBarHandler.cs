@@ -49,7 +49,7 @@ namespace ADMP
 
         public void MuteUnmuteVideoPlayer()
         {
-            if (!isMuted)
+            if (!isMuted)//muting
             {
                 isMuted = true;
                 mainWindow.VolumeSlider.IsEnabled = false;
@@ -57,7 +57,7 @@ namespace ADMP
                 mainWindow.mainMediaPlayer.Volume = 0;
                 mainWindow.MuteButtonImage.Source = new BitmapImage(new Uri("icons/unmute_btn.png", UriKind.Relative));
             }
-            else
+            else//unmuting
             {
                 isMuted = false;
                 mainWindow.VolumeSlider.IsEnabled = true;

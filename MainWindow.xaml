@@ -7,22 +7,26 @@
         xmlns:vlcsw="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-     <Grid x:Name="MainGrid">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="12*"/>
-            <RowDefinition Height="40"/>
-        </Grid.RowDefinitions>
+	<Grid x:Name="MainGrid">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="25"/>
+			<RowDefinition Height="12*"/>
+			<RowDefinition Height="40"/>
+		</Grid.RowDefinitions>
 
-        <Menu VerticalAlignment="Center">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Open" Click="TopMenuOpenFile" />
-                <Separator />
-                <MenuItem Header="_Close app"  Click="AppQuit" />
-            </MenuItem>
+		<Menu VerticalAlignment="Center">
+			<MenuItem Header="_File">
+				<MenuItem Header="_Open" Click="TopMenuOpenFile" />
+				<MenuItem Header="_Recently opened" x:Name="RecentlyOpenedList" Visibility="Collapsed">
+					<Separator />
+					<MenuItem Header="Clear recent" Click="ClearRecentList" />
+				</MenuItem>
+				<Separator />
+				<MenuItem Header="_Close app"  Click="AppQuit" />
+			</MenuItem>
 
 			<MenuItem Header="_Subtitles">
 				<MenuItem Header="_Load subtitles" Click="LoadSubtitleFile" />
@@ -34,64 +38,64 @@
 				<MenuItem Header="_Settings" Click="TopMenuOpenSettings" />
 			</MenuItem>
 		</Menu>
-        
-        <Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1">
-            <vlcsw:VideoView x:Name="MainVideoPlayer">
-                <DockPanel LastChildFill="False">
-                    <DockPanel x:Name="TopOverlay" LastChildFill="False" DockPanel.Dock="Top" >
-                        <TextBlock x:Name="TopOverlayFilenameText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Left">filename</TextBlock>
-                        <TextBlock x:Name="TopOverlayDurationText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Right">duration</TextBlock>
-                    </DockPanel>
-                    <Grid x:Name="ProgressBar" DockPanel.Dock="Bottom" Margin="50,0,50,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="8*"/>
-                            <ColumnDefinition Width="2*"/>
-                        </Grid.ColumnDefinitions>
+
+		<Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1">
+			<vlcsw:VideoView x:Name="MainVideoPlayer">
+				<DockPanel LastChildFill="False">
+					<DockPanel x:Name="TopOverlay" LastChildFill="False" DockPanel.Dock="Top" >
+						<TextBlock x:Name="TopOverlayFilenameText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Left">filename</TextBlock>
+						<TextBlock x:Name="TopOverlayDurationText" Background="Black" Foreground="White" FontWeight="Bold" DockPanel.Dock="Right">duration</TextBlock>
+					</DockPanel>
+					<Grid x:Name="ProgressBar" DockPanel.Dock="Bottom" Margin="50,0,50,10">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="2*"/>
+							<ColumnDefinition Width="8*"/>
+							<ColumnDefinition Width="2*"/>
+						</Grid.ColumnDefinitions>
 						<Grid.RowDefinitions>
 							<RowDefinition Height="1*" />
 							<RowDefinition Height="2*" />
 						</Grid.RowDefinitions>
-						
+
 						<TextBlock x:Name="SubtitleDisplay" Visibility="Hidden" Grid.Column="1" Grid.Row="0" TextAlignment="Center" Foreground="GreenYellow" FontSize="15" FontWeight="Bold">SUBS</TextBlock>
 						<TextBlock Grid.Column="0" Grid.Row="1" Visibility="Hidden">left</TextBlock>
-                        <Slider x:Name="ProgressBarSlider" Grid.Column="1" Grid.Row="1" IsMoveToPointEnabled="True" ValueChanged="ProgressBarSliderValueChanged" Thumb.DragStarted="ProgressBarSliderDragStarted" Thumb.DragCompleted="ProgressBarSliderDragCompleted"></Slider>
-                        <TextBlock x:Name="ProgressBarTimer" Grid.Column="2" Grid.Row="1" FontWeight="Bold" FontSize="14" Background="White">right</TextBlock>
-                    </Grid>
-                </DockPanel>
-            </vlcsw:VideoView>
-        </Border>
-        
-        <Border BorderBrush="Blue" BorderThickness="2" Grid.Column="0" Grid.Row="2">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="7*"/>
-                    <ColumnDefinition Width="45"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="45"/>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                </Grid.RowDefinitions>
+						<Slider x:Name="ProgressBarSlider" Grid.Column="1" Grid.Row="1" IsMoveToPointEnabled="True" ValueChanged="ProgressBarSliderValueChanged" Thumb.DragStarted="ProgressBarSliderDragStarted" Thumb.DragCompleted="ProgressBarSliderDragCompleted"></Slider>
+						<TextBlock x:Name="ProgressBarTimer" Grid.Column="2" Grid.Row="1" FontWeight="Bold" FontSize="14" Background="White">right</TextBlock>
+					</Grid>
+				</DockPanel>
+			</vlcsw:VideoView>
+		</Border>
+
+		<Border BorderBrush="Blue" BorderThickness="2" Grid.Column="0" Grid.Row="2">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="7*"/>
+					<ColumnDefinition Width="45"/>
+					<ColumnDefinition Width="50"/>
+					<ColumnDefinition Width="45"/>
+					<ColumnDefinition Width="3*"/>
+					<ColumnDefinition Width="1*"/>
+					<ColumnDefinition Width="2*"/>
+					<ColumnDefinition Width="1*"/>
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition />
+				</Grid.RowDefinitions>
 
 				<Button x:Name="PreviousButton" Grid.Column="1" Grid.Row="0" Click="SkipBackward">
 					<Image Source="/icons/backwards_btn.png" Width="30" Height="30"/>
 				</Button>
-                <Button x:Name="PlayPauseButton" Click="PlayPause" Grid.Column="2" Grid.Row="0">
+				<Button x:Name="PlayPauseButton" Click="PlayPause" Grid.Column="2" Grid.Row="0">
 					<Image x:Name="PlayPauseButtonImage" Source="/icons/play_btn.png" Width="32" Height="32"/>
 				</Button>
-                <Button x:Name="NextButton" Grid.Column="3" Grid.Row="0" Click="SkipForward">
+				<Button x:Name="NextButton" Grid.Column="3" Grid.Row="0" Click="SkipForward">
 					<Image Source="/icons/forwards_btn.png" Width="30" Height="30"/>
 				</Button>
-                <Button x:Name="MuteButton" Click="BottomBarMute" Grid.Column="5" Grid.Row="0">
+				<Button x:Name="MuteButton" Click="BottomBarMute" Grid.Column="5" Grid.Row="0">
 					<Image x:Name="MuteButtonImage" Source="/icons/mute_btn.png" Width="30" Height="30"/>
 				</Button>
-                <Slider x:Name="VolumeSlider" ValueChanged="BottomBarVolumeChanged" MouseWheel="VolumeSliderMouseWheelHandler" IsMoveToPointEnabled="True" Grid.Column="6" Grid.Row="0" VerticalAlignment="Center"></Slider>
-            </Grid>
-        </Border>
-    </Grid>
+				<Slider x:Name="VolumeSlider" ValueChanged="BottomBarVolumeChanged" MouseWheel="VolumeSliderMouseWheelHandler" IsMoveToPointEnabled="True" Grid.Column="6" Grid.Row="0" VerticalAlignment="Center"></Slider>
+			</Grid>
+		</Border>
+	</Grid>
 </Window>
