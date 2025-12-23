@@ -27,6 +27,7 @@ namespace ADMP
         public BottomBarHandler bottomBarHandler;
         public TopMenuHandler topMenuHandler;
         public ProgressBarHandler progressBarHandler;
+        public SettingsHandler settingsHandler;
         public LibVLC libVLC = new();
         public MediaPlayer mainMediaPlayer;
         public bool isPlaying = false;
@@ -46,6 +47,46 @@ namespace ADMP
             bottomBarHandler = new BottomBarHandler(this);
             topMenuHandler = new TopMenuHandler(this, mainMediaPlayer);
             progressBarHandler = new ProgressBarHandler(this);
+            settingsHandler = new SettingsHandler();
+
+            settingsHandler.LoadSettings();//loading settings
+            if (settingsHandler.AppSettings.VolumeLevel is not null)
+            {
+                mainMediaPlayer.Volume = (int)settingsHandler.AppSettings.VolumeLevel!;
+                VolumeSlider.Value = Convert.ToDouble(mainMediaPlayer.Volume) / 10;
+
+            }
+            else
+            {
+                mainMediaPlayer.Volume = 50;
+                VolumeSlider.Value = 5;
+            }
+            if (settingsHandler.AppSettings.LastOpened.Count > 0)
+            {
+                Debug.WriteLine("Generating recent files list...");
+                RecentlyOpenedList.Visibility = Visibility.Visible;
+                int tag = 1;
+                foreach (var item in settingsHandler.AppSettings.LastOpened)
+                {
+                    MenuItem menuItem = new() { Header = item, Tag = tag };
+                    menuItem.Click += (s, e) =>
+                    {
+                        Debug.WriteLine("Opening recent file: " + item);
+                        topMenuHandler.OpenFile(item);
+                    };
+
+                    RecentlyOpenedList.Items.Insert(0, menuItem);
+                    tag++;
+                }
+            }
+
+            Timer progressUpdateTimer = new Timer(1000);
+            activeTimers.Add(progressUpdateTimer);
+            progressUpdateTimer.AutoReset = true;
+            progressUpdateTimer.Elapsed += ProgressBarSliderUpdate;
+            progressUpdateTimer.Start();
+
+            this.VolumeSlider.Value = Convert.ToDouble(mainMediaPlayer.Volume) / 10;
 
             mainMediaPlayer.EndReached += (s, e) =>
             {
@@ -60,14 +101,10 @@ namespace ADMP
                     isPlaying = false;
                 }));
             };
-
-            Timer progressUpdateTimer = new Timer(1000);
-            activeTimers.Add(progressUpdateTimer);
-            progressUpdateTimer.AutoReset = true;
-            progressUpdateTimer.Elapsed += ProgressBarSliderUpdate;
-            progressUpdateTimer.Start();
-
-            this.VolumeSlider.Value = Convert.ToDouble(mainMediaPlayer.Volume) / 10;
+            Closing += (s, e) =>
+            {
+                AppQuit(s, e);
+            };
         }
         public async Task GetEmbeddedSubtitleTracks()
         {
@@ -171,7 +208,14 @@ namespace ADMP
 
         public void AppQuit(object sender, RoutedEventArgs e)
         {
+            settingsHandler.AppSettings.VolumeLevel = mainMediaPlayer.Volume;
+            settingsHandler.SaveSettings();
             Environment.Exit(0);
+        }
+        public void AppQuit(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            settingsHandler.AppSettings.VolumeLevel = mainMediaPlayer.Volume;
+            settingsHandler.SaveSettings();
         }
 
         private void ProgressBarSliderDragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
@@ -225,6 +269,61 @@ namespace ADMP
         public void SkipBackward(object sender, RoutedEventArgs e)
         {
             bottomBarHandler.SkipBackward();
+        }
+
+        public void ClearRecentList(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Clearing recent files list...");
+
+            if (RecentlyOpenedList.Items.Count <= 1)
+            {
+                return;
+            }
+
+            settingsHandler.AppSettings.LastOpened.Clear();
+            List<MenuItem> itemsToRemove = [];
+            foreach (var item in RecentlyOpenedList.Items)
+            {
+                if (item is not MenuItem)//cause theres a separator in there,and it WILL crash badly if this isnt here
+                {
+                    continue;
+                }
+                MenuItem menuItem = (MenuItem)item;
+                if ((string)menuItem.Header != "Clear recent")//to make sure this doesnt remove the "Clear recent" button itself
+                {
+                    itemsToRemove.Add(menuItem);
+                }
+            }
+            foreach (var item in itemsToRemove)//note: two loops required,cause you cant remove items from a collection youre iterating through
+            {
+                RecentlyOpenedList.Items.Remove(item);
+            }
+
+            RecentlyOpenedList.Items.Clear();
+            RecentlyOpenedList.Visibility = Visibility.Collapsed;
+        }
+
+        public void AddToRecentFilesList(string filePath)
+        {
+            Debug.WriteLine("Adding to main window recent files list: " + filePath);
+
+            if (RecentlyOpenedList.Items.Count >= 6)
+            {
+                Debug.WriteLine("Removing excess items...");
+                RecentlyOpenedList.Items.RemoveAt(4);
+            }
+            int lastTag = RecentlyOpenedList.Items
+                .OfType<MenuItem>()
+                .Select(mi => mi.Tag is int tag ? tag : 0)
+                .DefaultIfEmpty(0)
+                .Max();//linq for getting the largest, and therefore last tag
+            MenuItem menuItem = new() { Header = filePath, Tag = lastTag + 1 };
+            menuItem.Click += (s, e) =>
+            {
+                Debug.WriteLine("Opening recent file: " + filePath);
+                topMenuHandler.OpenFile(filePath);
+            };
+            RecentlyOpenedList.Items.Insert(0, menuItem);
         }
 
         public class SubtitleTrack(int tag, string name, bool isEmbedded)
