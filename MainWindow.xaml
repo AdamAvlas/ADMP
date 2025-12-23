@@ -33,10 +33,6 @@
 				<MenuItem Header="_Subtitle tracks" x:Name="SubtitleTrackList" Visibility="Collapsed">
 				</MenuItem>
 			</MenuItem>
-
-			<MenuItem Header="_Configuration">
-				<MenuItem Header="_Settings" Click="TopMenuOpenSettings" />
-			</MenuItem>
 		</Menu>
 
 		<Border Padding="2" BorderBrush="#ff8800" Grid.Column="0" Grid.Row="1">
