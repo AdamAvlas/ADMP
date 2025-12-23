@@ -1,4 +1,4 @@
-﻿using ADMP.code;
+﻿using ADMP.Utils;
 using LibVLCSharp.Shared;
 using Microsoft.Win32;
 using SubtitlesParser.Classes;
@@ -96,7 +96,7 @@ namespace ADMP
             string[] fileNames = filePath.Split("\\");
             string fileName = fileNames[fileNames.Length - 1];
 
-            string mediaDurationString = ADMPUtils.GetMediaDurationString(media.Duration);
+            string mediaDurationString = Utilities.GetMediaDurationString(media.Duration);
 
             MainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
             MainWindow.TopOverlayFilenameText.Text = fileName;

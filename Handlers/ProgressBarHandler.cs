@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ADMP.Utils;
+using System;
 using System.Diagnostics;
 
 namespace ADMP.code
@@ -24,13 +25,13 @@ namespace ADMP.code
             string timeElapsedString = "";
             if (TimeSpan.FromMilliseconds(duration).Hours > 0)
             {
-                timeElapsedString = ADMPUtils.GetMediaDurationString(actualPosition, true);
+                timeElapsedString = Utilities.GetMediaDurationString(actualPosition, true);
             }
             else
             {
-                timeElapsedString = ADMPUtils.GetMediaDurationString(actualPosition);
+                timeElapsedString = Utilities.GetMediaDurationString(actualPosition);
             }
-            string durationString = ADMPUtils.GetMediaDurationString(duration);
+            string durationString = Utilities.GetMediaDurationString(duration);
 
             double sliderPosition = Convert.ToDouble(mainWindow.mainMediaPlayer.Position) * 10;
 
