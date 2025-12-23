@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
-namespace ADMP.code
+namespace ADMP.Handlers
 {
     public class SettingsHandler
     {
@@ -36,22 +36,19 @@ namespace ADMP.code
                 Debug.WriteLine("Error deserializing settings: " + ex.Message);
                 return;
             }
-            //Debug.WriteLine("loaded: " + jsonText);
-            //Debug.WriteLine($"Found: {appSettings.LastOpened.Count} recent files");
         }
 
         public void SaveSettings()
         {
             Debug.WriteLine("Saving settings...");
-            string settingsJson = JsonSerializer.Serialize<Settings>(AppSettings);
-            Debug.WriteLine("Serialized settings: " + settingsJson);
+            string settingsJson = JsonSerializer.Serialize(AppSettings);
             File.WriteAllText("appsettings.json", settingsJson);
         }
     }
 
     public class Settings
     {
-        public Queue<String> LastOpened { get; set; }//would be better to just have a getter, but json serializer pretty much needs a setter
+        public Queue<string> LastOpened { get; set; }//would be better to just have a getter, but json serializer pretty much needs a setter
         public int? VolumeLevel { get; set; }
 
         public Settings()
@@ -59,7 +56,7 @@ namespace ADMP.code
             LastOpened = new Queue<string>();
             VolumeLevel = null;
         }
-        public Settings(Queue<string> lastOpened, int volume, bool isMuted)
+        public Settings(Queue<string> lastOpened, int volume)
         {
             LastOpened = lastOpened;
             VolumeLevel = volume;

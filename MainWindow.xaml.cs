@@ -1,4 +1,4 @@
-﻿using ADMP.code;
+﻿using ADMP.Handlers;
 using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
 using SubtitlesParser.Classes;
@@ -114,7 +114,7 @@ namespace ADMP
                     currentSubtitles.Add(subTrack);
                 }
 
-                _ = GenerateSubtitleTracks();
+                GenerateSubtitleTracks();
             }
             else
             {
@@ -122,7 +122,7 @@ namespace ADMP
                 SubtitleTrackList.Visibility = Visibility.Collapsed;
             }
         }
-        public async Task GenerateSubtitleTracks()
+        public void GenerateSubtitleTracks()
         {
             if (currentSubtitles.Count == 0)
             {
@@ -252,7 +252,7 @@ namespace ADMP
 
         private void LoadSubtitleFile(object sender, RoutedEventArgs e)
         {
-            _ = topMenuHandler.LoadSubtitleFile();
+            topMenuHandler.LoadSubtitleFile();
         }
 
         public void SkipForward(object sender, RoutedEventArgs e)

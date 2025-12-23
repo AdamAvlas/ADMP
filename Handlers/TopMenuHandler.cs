@@ -15,7 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace ADMP
+namespace ADMP.Handlers
 {
     public class TopMenuHandler
     {
@@ -24,8 +24,8 @@ namespace ADMP
 
         public TopMenuHandler(MainWindow mainWindow, LibVLCSharp.Shared.MediaPlayer mediaPlayer)
         {
-            this.MainWindow = mainWindow;
-            this.MediaPlayer = mediaPlayer;
+            MainWindow = mainWindow;
+            MediaPlayer = mediaPlayer;
         }
 
         public async void OpenFile(string? filePath = null)//function has an optional parameter, if the filepath isnt sepcified, it opens an open file dialog
@@ -44,7 +44,7 @@ namespace ADMP
 
                 bool? result = ofd.ShowDialog();
 
-                if (result is not null && !(Boolean)result)
+                if (result is not null && !(bool)result)
                 {
                     Debug.WriteLine("File opening canceled/was unsuccessful");
                     return;
@@ -80,18 +80,16 @@ namespace ADMP
                         break;
                     }
                 }
-                if (isAlreadyInRecent)
+                if (!isAlreadyInRecent)
                 {
-                    Debug.WriteLine("File is already in recent files list, not adding again...");
-                    return;
+                    Debug.WriteLine("Adding file to recent files list...");
+                    MainWindow.settingsHandler.AppSettings.AddRecent(filePath);
+                    MainWindow.AddToRecentFilesList(filePath);
+                    MainWindow.RecentlyOpenedList.Visibility = Visibility.Visible;
                 }
-                Debug.WriteLine("Adding file to recent files list...");
-                MainWindow.settingsHandler.AppSettings.AddRecent(filePath);
-                MainWindow.AddToRecentFilesList(filePath);
-                MainWindow.RecentlyOpenedList.Visibility = Visibility.Visible;
             }
-            //getting embedded subtitles(if there are any)
-            _ = MainWindow.GetEmbeddedSubtitleTracks();
+
+            _ = MainWindow.GetEmbeddedSubtitleTracks();//getting embedded subtitles(if there are any), discard, so that doesnt throw async warnings
 
             string[] fileNames = filePath.Split("\\");
             string fileName = fileNames[fileNames.Length - 1];
@@ -104,7 +102,7 @@ namespace ADMP
             MainWindow.isPlaying = true;
 
             Timer labelsTimer = new(5000);
-            labelsTimer.Elapsed += (object? sender, ElapsedEventArgs e) =>
+            labelsTimer.Elapsed += (sender, e) =>
             {
                 MainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
                 {
@@ -115,7 +113,7 @@ namespace ADMP
             labelsTimer.Start();
         }
 
-        public async Task LoadSubtitleFile()
+        public void LoadSubtitleFile()
         {
             if (MainWindow.currentMedia is null)
             {
@@ -166,7 +164,7 @@ namespace ADMP
             if (MainWindow.currentSubtitles.Count > 0)
             {
                 Debug.WriteLine("Existing subtitle tracks found, determining last tag..."); //making sure the external subtitles are added BEHIND the embedded ones
-                lastTag = MainWindow.currentSubtitles!.MaxBy(t => t.Tag).Tag;
+                lastTag = MainWindow.currentSubtitles.MaxBy(t => t.Tag)!.Tag;
             }
             MainWindow.SubtitleTrack subtitleTrack = new(lastTag, "external", false)
             {
@@ -175,7 +173,7 @@ namespace ADMP
             MainWindow.currentSubtitles.Add(subtitleTrack);
             Debug.WriteLine("current subtitle count: " + MainWindow.currentSubtitles.Count);
 
-            _ = MainWindow.GenerateSubtitleTracks();
+            MainWindow.GenerateSubtitleTracks();
 
             MainWindow.mainMediaPlayer.SetSpu(-1);//disabling embedded subtitles
 
@@ -197,17 +195,10 @@ namespace ADMP
         public delegate void SubUpdateDelegate();
         private void SubtitleUpdate()
         {
-
             double position = Convert.ToDouble(MainWindow.mainMediaPlayer.Position);
-            long duration = MainWindow.mainMediaPlayer.Media.Duration;
+            long duration = MainWindow.mainMediaPlayer.Media!.Duration;
 
             long actualPosition = Convert.ToInt64(Convert.ToDouble(duration) * position);
-
-            int temp = 0;
-            if (MainWindow.currentExternalSubtitles.Count > 0)
-            {
-                temp = MainWindow.currentExternalSubtitles[0].StartTime;
-            }
 
             foreach (SubtitleItem subtitle in MainWindow.currentExternalSubtitles)
             {

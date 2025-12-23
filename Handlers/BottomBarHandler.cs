@@ -2,39 +2,39 @@
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
 
-namespace ADMP
+namespace ADMP.Handlers
 {
     public class BottomBarHandler
     {
-        MainWindow mainWindow { get; set; }
+        MainWindow MainWindow { get; set; }
         int originalVolume;
         bool isMuted = false;
 
         public BottomBarHandler(MainWindow mainWindow)
         {
-            this.mainWindow = mainWindow;
+            this.MainWindow = mainWindow;
         }
 
         public void PlayPause()
         {
-            if (mainWindow.mainMediaPlayer.Media is not null)
+            if (MainWindow.mainMediaPlayer.Media is not null)
             {
-                if (mainWindow.mainMediaPlayer.IsPlaying)
+                if (MainWindow.mainMediaPlayer.IsPlaying)
                 {
-                    mainWindow.mainMediaPlayer.Pause();
-                    mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/play_btn.png", UriKind.Relative)); ;
-                    mainWindow.isPlaying = false;
-                    foreach (System.Timers.Timer timer in mainWindow.activeTimers)
+                    MainWindow.mainMediaPlayer.Pause();
+                    MainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/play_btn.png", UriKind.Relative)); ;
+                    MainWindow.isPlaying = false;
+                    foreach (System.Timers.Timer timer in MainWindow.activeTimers)
                     {
                         timer.Stop();
                     }
                 }
                 else
                 {
-                    mainWindow.mainMediaPlayer.Play();
-                    mainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
-                    mainWindow.isPlaying = true;
-                    foreach (System.Timers.Timer timer in mainWindow.activeTimers)
+                    MainWindow.mainMediaPlayer.Play();
+                    MainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
+                    MainWindow.isPlaying = true;
+                    foreach (System.Timers.Timer timer in MainWindow.activeTimers)
                     {
                         timer.Start();
                     }
@@ -47,24 +47,24 @@ namespace ADMP
             if (!isMuted)//muting
             {
                 isMuted = true;
-                mainWindow.VolumeSlider.IsEnabled = false;
-                originalVolume = mainWindow.mainMediaPlayer.Volume;
-                mainWindow.mainMediaPlayer.Volume = 0;
-                mainWindow.MuteButtonImage.Source = new BitmapImage(new Uri("icons/unmute_btn.png", UriKind.Relative));
+                MainWindow.VolumeSlider.IsEnabled = false;
+                originalVolume = MainWindow.mainMediaPlayer.Volume;
+                MainWindow.mainMediaPlayer.Volume = 0;
+                MainWindow.MuteButtonImage.Source = new BitmapImage(new Uri("icons/unmute_btn.png", UriKind.Relative));
             }
             else//unmuting
             {
                 isMuted = false;
-                mainWindow.VolumeSlider.IsEnabled = true;
-                mainWindow.mainMediaPlayer.Volume = originalVolume;
-                mainWindow.MuteButtonImage.Source = new BitmapImage(new Uri("icons/mute_btn.png", UriKind.Relative));
+                MainWindow.VolumeSlider.IsEnabled = true;
+                MainWindow.mainMediaPlayer.Volume = originalVolume;
+                MainWindow.MuteButtonImage.Source = new BitmapImage(new Uri("icons/mute_btn.png", UriKind.Relative));
 
             }
         }
         public void VolumeChanged()
         {
-            int sliderVal = Convert.ToInt32(mainWindow.VolumeSlider.Value * 10);
-            mainWindow.mainMediaPlayer.Volume = sliderVal;
+            int sliderVal = Convert.ToInt32(MainWindow.VolumeSlider.Value * 10);
+            MainWindow.mainMediaPlayer.Volume = sliderVal;
             Debug.WriteLine("slider val.:" + sliderVal);
         }
 
@@ -72,41 +72,41 @@ namespace ADMP
         {
             if (positive)
             {
-                mainWindow.VolumeSlider.Value = mainWindow.VolumeSlider.Value + 0.2;
+                MainWindow.VolumeSlider.Value = MainWindow.VolumeSlider.Value + 0.2;
             }
             else
             {
-                mainWindow.VolumeSlider.Value = mainWindow.VolumeSlider.Value - 0.2;
+                MainWindow.VolumeSlider.Value = MainWindow.VolumeSlider.Value - 0.2;
             }
         }
 
         public void SkipForward()
         {
-            if (mainWindow.mainMediaPlayer.Media is null)
+            if (MainWindow.mainMediaPlayer.Media is null)
             {
                 return;
             }
 
-            float currentPosition = mainWindow.mainMediaPlayer.Position;
-            float newPosition = currentPosition + (10000f / mainWindow.currentMedia.Duration);
+            float currentPosition = MainWindow.mainMediaPlayer.Position;
+            float newPosition = currentPosition + 10000f / MainWindow.currentMedia!.Duration;//null-forgiving operator cause if media is null, the code doesnt even reach this point
             if (newPosition <= 1f)
             {
-                mainWindow.mainMediaPlayer.Position = newPosition;
+                MainWindow.mainMediaPlayer.Position = newPosition;
             }
         }
 
         public void SkipBackward()
         {
-            if (mainWindow.mainMediaPlayer.Media is null)
+            if (MainWindow.mainMediaPlayer.Media is null)
             {
                 return;
             }
 
-            float currentPosition = mainWindow.mainMediaPlayer.Position;
-            float newPosition = currentPosition - (10000f / mainWindow.currentMedia.Duration);
+            float currentPosition = MainWindow.mainMediaPlayer.Position;
+            float newPosition = currentPosition - 10000f / MainWindow.currentMedia!.Duration;
             if (newPosition >= 0f)
             {
-                mainWindow.mainMediaPlayer.Position = newPosition;
+                MainWindow.mainMediaPlayer.Position = newPosition;
             }
         }
     }
