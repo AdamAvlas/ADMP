@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ADMP.code
+namespace ADMP.Utils
 {
-    public static class ADMPUtils
+    public static class Utilities
     {
         public static string GetMediaDurationString(long mediaDurationSrc, bool longerOverride = false)
         {

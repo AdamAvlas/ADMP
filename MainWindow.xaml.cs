@@ -1,5 +1,4 @@
-﻿using ADMP.code;
-using LibVLCSharp;
+﻿using ADMP.Handlers;
 using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
 using SubtitlesParser.Classes;
@@ -7,17 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace ADMP
@@ -66,7 +60,7 @@ namespace ADMP
                 Debug.WriteLine("Generating recent files list...");
                 RecentlyOpenedList.Visibility = Visibility.Visible;
                 int tag = 1;
-                foreach (var item in settingsHandler.AppSettings.LastOpened)
+                foreach (string item in settingsHandler.AppSettings.LastOpened)
                 {
                     MenuItem menuItem = new() { Header = item, Tag = tag };
                     menuItem.Click += (s, e) =>
@@ -80,7 +74,7 @@ namespace ADMP
                 }
             }
 
-            Timer progressUpdateTimer = new Timer(1000);
+            Timer progressUpdateTimer = new(1000);
             activeTimers.Add(progressUpdateTimer);
             progressUpdateTimer.AutoReset = true;
             progressUpdateTimer.Elapsed += ProgressBarSliderUpdate;
@@ -91,7 +85,7 @@ namespace ADMP
             mainMediaPlayer.EndReached += (s, e) =>
             {
                 Debug.WriteLine("Media ended.");
-                foreach (var timer in activeTimers)
+                foreach (Timer timer in activeTimers)
                 {
                     timer.Stop();
                 }
@@ -116,11 +110,11 @@ namespace ADMP
                 TrackDescription[] subtitleDescriptionList = mainMediaPlayer.SpuDescription;
                 foreach (TrackDescription subtitleTrack in subtitleDescriptionList)
                 {
-                    var subTrack = new SubtitleTrack(subtitleTrack.Id, subtitleTrack.Name, true);
+                    SubtitleTrack subTrack = new(subtitleTrack.Id, subtitleTrack.Name, true);
                     currentSubtitles.Add(subTrack);
                 }
 
-                _ = GenerateSubtitleTracks();
+                GenerateSubtitleTracks();
             }
             else
             {
@@ -128,7 +122,7 @@ namespace ADMP
                 SubtitleTrackList.Visibility = Visibility.Collapsed;
             }
         }
-        public async Task GenerateSubtitleTracks()
+        public void GenerateSubtitleTracks()
         {
             if (currentSubtitles.Count == 0)
             {
@@ -141,7 +135,7 @@ namespace ADMP
             Debug.WriteLine("re/generating subtitle tracks...");
             bool areAllEmbedded = true;
             SubtitleTrackList.Items.Clear();
-            foreach (var item in currentSubtitles)
+            foreach (SubtitleTrack item in currentSubtitles)
             {
                 MenuItem menuItem = new() { Header = item.Name, Tag = item.Tag };
                 if (item.IsEmbedded)
@@ -258,7 +252,7 @@ namespace ADMP
 
         private void LoadSubtitleFile(object sender, RoutedEventArgs e)
         {
-            _ = topMenuHandler.LoadSubtitleFile();
+            topMenuHandler.LoadSubtitleFile();
         }
 
         public void SkipForward(object sender, RoutedEventArgs e)
@@ -282,7 +276,7 @@ namespace ADMP
 
             settingsHandler.AppSettings.LastOpened.Clear();
             List<MenuItem> itemsToRemove = [];
-            foreach (var item in RecentlyOpenedList.Items)
+            foreach (object? item in RecentlyOpenedList.Items)
             {
                 if (item is not MenuItem)//cause theres a separator in there,and it WILL crash badly if this isnt here
                 {
@@ -294,7 +288,7 @@ namespace ADMP
                     itemsToRemove.Add(menuItem);
                 }
             }
-            foreach (var item in itemsToRemove)//note: two loops required,cause you cant remove items from a collection youre iterating through
+            foreach (MenuItem item in itemsToRemove)//note: two loops required,cause you cant remove items from a collection youre iterating through
             {
                 RecentlyOpenedList.Items.Remove(item);
             }

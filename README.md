@@ -1,5 +1,14 @@
 # ADMP
-ADam Media Player (name might change)
+ADam Media Player 
 
-When I say "media", I mean video.
-God knows how long this will take...
+Pøehrávaè video souborù napsaný v C#, využívající sadu WPF (Windows Presentation Foundation). WPF je novìjší alternativa ke staršímu WinForms, využívající jazyk "XAML" podobný jazyku HTML pro vytvoøení layoutu, místo volného designeru WinForms.
+Pro samotné pøehrávání je využita knihovna "LibVLCSharp", což je .NET verze knihovnu "libVLC", která je základem populárního pøehrávaèe VLC Media Player.
+Pøehrávaè umožòuje otevøít a pøehrát videosoubory formátu MP4 nebo MKV (potenciálnì by šlo jednoduše implementovat i další, ale kvùli správné podpoøe titulek aplikace zatím podporuje jenom tyto dva formáty). Videosoubor lze otevøít tlaèítkem "Open" pod tlaèítkem "File" v horním menu. Pokud je videosoubor v pøehratelný, zaène se pøehrávat okamžitì po správném naètení.
+Vždy po naètení videosouboru se v levém horním rohu zobrazí název souboru, a v pravém horním rohu jeho délka ve formátu HH:MM:SS. Obì tyto informace se skryjí po 2 sekundách.
+Pøehrávání je vždy pozastavitelné prostøedním tlaèítkem v dolní lištì. Tlaèítky vlevo a vpravo od prostøedního lze pøehrávání posunout o 10 sekund dopøedu nebo dozadu. Posuvník nad tìmito tlaèítky zobrazuje aktuální pozici pøehrávaného video, a umožòuje pøeskoèení na jinou pozici, buï kliknutím, nebo tažením.
+Délka a aktuální pozice videa jsou zobrazena na pravé stranì posuvníku.
+Vpravo od tlaèítek v dolní lištì se nachází posuvník na ovládání hlasitosti. Lze jí ovládat kliknutím, tažením nebo koleèkem myši (kurzor myši musí být pøímo na posuvníkem, velká citlivost). Vlevo od posuvníku hlasitosti se nachází tlaèítko pro ztlumení zvuku. Kliknutím na nìj se video kompletnì ztlumí a posuvník se "zakáže" (nelze s ním nijak manipulovat), opìtovným kliknutím se zvuk obnoví na pøedchozí hodnotu a posuvník se "odemkne".
+
+Pøehrávaè podporuje zobrazování jak integrovanných (embedded), tak externích titulek (externí POUZE ve formátu SRT). Integrované titulky se automaticky naètou spolu s videem, pokud je video má. Externí titulky lze naèíst tlaèítkem "Load Subtitles" pod tlaèítkem "File" v horním menu. Externí se zobrazí automaticky, integrované je tøeba vybrat ze seznamu "Subtitle tracks" pod tlaèítkem "Subtitles" v horní lištì. Pokud jsou naèteny jak externí, tak integrované titulky, lze mezi nimi pøepínat v tomto seznamu. Titulky lze také vypnout výbìrem možnosti "Disable subtitles" v tomto seznamu.
+Pøehrávaè obsahuje seznam pìti naposledy otevøených videosouborù, které lze rychle otevøít pod tlaèítkem "Recent Files" pod volbou "File" v horním menu. Spolu s poslední použitou hlasitostí jsou tyto informace uloženy pøi zavøení aplikace do souboru "appsettings.json" v "build adresáøi" aplikace (/bin/Debug/.net), a pøi dalším spuštìní aplikace se naètou. Pokud soubor neexistuje, hlasitost je nastavena na 50% a seznam posledních souborù je ponechán prázdný.
+Aplikaci lze zavøít tlaèítkem "Close app" pod volbou "File" v horním menu, nebo standardním zavíracím tlaèítkem okna. Zavøení aplikace jiným zpùsobem mùže zpùsobit, že se nastavení neuloží správnì (aplikaci to samozžejmì nijak nerozbije).
