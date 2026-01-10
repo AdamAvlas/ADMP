@@ -15,203 +15,202 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace ADMP.Handlers
+namespace ADMP.Handlers;
+
+public class TopMenuHandler
 {
-    public class TopMenuHandler
+    MainWindow MainWindow { get; set; }
+    LibVLCSharp.Shared.MediaPlayer MediaPlayer { get; set; }//has to be set this explicitly, because MediaPlayer is an ambiguous object/class
+
+    public TopMenuHandler(MainWindow mainWindow, LibVLCSharp.Shared.MediaPlayer mediaPlayer)
     {
-        MainWindow MainWindow { get; set; }
-        LibVLCSharp.Shared.MediaPlayer MediaPlayer { get; set; }//has to be set this explicitly, because MediaPlayer is an ambiguous object/class
+        MainWindow = mainWindow;
+        MediaPlayer = mediaPlayer;
+    }
 
-        public TopMenuHandler(MainWindow mainWindow, LibVLCSharp.Shared.MediaPlayer mediaPlayer)
+    public async void OpenFile(string? filePath = null)//function has an optional parameter, if the filepath isnt sepcified, it opens an open file dialog
+    {
+        Debug.WriteLine("Attempting to open file...");
+        bool wasFilePathSet = true;//so that I know whether the filepath was set from ofd or not
+
+        if (filePath is null)
         {
-            MainWindow = mainWindow;
-            MediaPlayer = mediaPlayer;
-        }
-
-        public async void OpenFile(string? filePath = null)//function has an optional parameter, if the filepath isnt sepcified, it opens an open file dialog
-        {
-            Debug.WriteLine("Attempting to open file...");
-            bool wasFilePathSet = true;//so that I know whether the filepath was set from ofd or not
-
-            if (filePath is null)
-            {
-                OpenFileDialog ofd = new()
-                {
-                    Multiselect = false,
-                    DefaultExt = ".mp4",
-                    Filter = "Video files|*.mp4;*.mkv"
-                };
-
-                bool? result = ofd.ShowDialog();
-
-                if (result is not null && !(bool)result)
-                {
-                    Debug.WriteLine("File opening canceled/was unsuccessful");
-                    return;
-                }
-
-                filePath = ofd.FileName;
-                wasFilePathSet = false;
-            }
-
-            if (!File.Exists(filePath))
-            {
-                Debug.WriteLine("File not found/not accessible!");
-                return;
-            }
-
-            Debug.WriteLine($"File ({filePath}) opened successfuly!");
-
-            Media media = new(MainWindow.libVLC, filePath, FromType.FromPath);
-            MainWindow.currentMedia = media;
-
-            await media.Parse();
-
-            MediaPlayer.Play(media);
-
-            if (!wasFilePathSet)//adding to recent files, BUT only if it's not already being opened from the recent file list
-            {
-                bool isAlreadyInRecent = false;
-                foreach (string existingFilePath in MainWindow.settingsHandler.AppSettings.LastOpened)
-                {
-                    if (filePath == existingFilePath)
-                    {
-                        isAlreadyInRecent = true;
-                        break;
-                    }
-                }
-                if (!isAlreadyInRecent)
-                {
-                    Debug.WriteLine("Adding file to recent files list...");
-                    MainWindow.settingsHandler.AppSettings.AddRecent(filePath);
-                    MainWindow.AddToRecentFilesList(filePath);
-                    MainWindow.RecentlyOpenedList.Visibility = Visibility.Visible;
-                }
-            }
-
-            _ = MainWindow.GetEmbeddedSubtitleTracks();//getting embedded subtitles(if there are any), discard, so that doesnt throw async warnings
-
-            string[] fileNames = filePath.Split("\\");
-            string fileName = fileNames[fileNames.Length - 1];
-
-            string mediaDurationString = Utilities.GetMediaDurationString(media.Duration);
-
-            MainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
-            MainWindow.TopOverlayFilenameText.Text = fileName;
-            MainWindow.TopOverlayDurationText.Text = mediaDurationString;
-            MainWindow.isPlaying = true;
-
-            Timer labelsTimer = new(5000);
-            labelsTimer.Elapsed += (sender, e) =>
-            {
-                MainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
-                {
-                    MainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
-                    MainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
-                }));
-            };
-            labelsTimer.Start();
-        }
-
-        public void LoadSubtitleFile()
-        {
-            if (MainWindow.currentMedia is null)
-            {
-                Debug.WriteLine("Cannot load subtitle file, because no media is playing!");
-                return;
-            }
-
             OpenFileDialog ofd = new()
             {
                 Multiselect = false,
-                DefaultExt = ".srt",
-                Filter = "Subtitle files|*.srt;*.sub;*."
+                DefaultExt = ".mp4",
+                Filter = "Video files|*.mp4;*.mkv"
             };
 
             bool? result = ofd.ShowDialog();
 
-            if (result == false)
+            if (result is not null && !(bool)result)
             {
-                Debug.WriteLine("Subtitle file selection canceled/was unsuccessful");
+                Debug.WriteLine("File opening canceled/was unsuccessful");
                 return;
             }
 
-            string subtitlePath = ofd.FileName;
-            if (!File.Exists(subtitlePath))
-            {
-                Debug.WriteLine("Subtitle file not found!");
-                return;
-            }
-            SubtitlesParser.Classes.Parsers.SubParser parser = new();
-            List<SubtitleItem> items = [];
-
-            using (FileStream fileStream = File.OpenRead(subtitlePath))
-            {
-                try
-                {
-                    SubtitlesFormat mostLikelyFormat = parser.GetMostLikelyFormat(subtitlePath);
-                    items = parser.ParseStream(fileStream, Encoding.UTF8, mostLikelyFormat);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Error parsing subtitle file: " + ex.Message);
-                    return;
-                }
-            }
-            MainWindow.currentExternalSubtitles = items;
-
-            int lastTag = 1;
-            if (MainWindow.currentSubtitles.Count > 0)
-            {
-                Debug.WriteLine("Existing subtitle tracks found, determining last tag..."); //making sure the external subtitles are added BEHIND the embedded ones
-                lastTag = MainWindow.currentSubtitles.MaxBy(t => t.Tag)!.Tag;
-            }
-            MainWindow.SubtitleTrack subtitleTrack = new(lastTag, "external", false)
-            {
-                SubtitleItems = items
-            };
-            MainWindow.currentSubtitles.Add(subtitleTrack);
-            Debug.WriteLine("current subtitle count: " + MainWindow.currentSubtitles.Count);
-
-            MainWindow.GenerateSubtitleTracks();
-
-            MainWindow.mainMediaPlayer.SetSpu(-1);//disabling embedded subtitles
-
-            Timer subUpdateTimer = new(100)
-            {
-                AutoReset = true
-            };
-            subUpdateTimer.Elapsed += SubtitleUpdateCall;
-            subUpdateTimer.Start();
-            MainWindow.activeTimers.Add(subUpdateTimer);
+            filePath = ofd.FileName;
+            wasFilePathSet = false;
         }
-        public void SubtitleUpdateCall(object? sender, ElapsedEventArgs e)
+
+        if (!File.Exists(filePath))
         {
-            if (MainWindow.currentMedia != null && MainWindow.isPlaying)
-            {
-                MainWindow.SubtitleDisplay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SubUpdateDelegate(SubtitleUpdate));
-            }
+            Debug.WriteLine("File not found/not accessible!");
+            return;
         }
-        public delegate void SubUpdateDelegate();
-        private void SubtitleUpdate()
+
+        Debug.WriteLine($"File ({filePath}) opened successfuly!");
+
+        Media media = new(MainWindow.libVLC, filePath, FromType.FromPath);
+        MainWindow.currentMedia = media;
+
+        await media.Parse();
+
+        MediaPlayer.Play(media);
+
+        if (!wasFilePathSet)//adding to recent files, BUT only if it's not already being opened from the recent file list
         {
-            double position = Convert.ToDouble(MainWindow.mainMediaPlayer.Position);
-            long duration = MainWindow.mainMediaPlayer.Media!.Duration;
-
-            long actualPosition = Convert.ToInt64(Convert.ToDouble(duration) * position);
-
-            foreach (SubtitleItem subtitle in MainWindow.currentExternalSubtitles)
+            bool isAlreadyInRecent = false;
+            foreach (string existingFilePath in MainWindow.settingsHandler.AppSettings.LastOpened)
             {
-                if (actualPosition >= subtitle.StartTime && actualPosition <= subtitle.EndTime)
+                if (filePath == existingFilePath)
                 {
-                    MainWindow.SubtitleDisplay.Visibility = Visibility.Visible;
-                    MainWindow.SubtitleDisplay.Text = string.Join("\n", subtitle.Lines);
-                    return;
+                    isAlreadyInRecent = true;
+                    break;
                 }
             }
-            MainWindow.SubtitleDisplay.Visibility = Visibility.Hidden;
+            if (!isAlreadyInRecent)
+            {
+                Debug.WriteLine("Adding file to recent files list...");
+                MainWindow.settingsHandler.AppSettings.AddRecent(filePath);
+                MainWindow.AddToRecentFilesList(filePath);
+                MainWindow.RecentlyOpenedList.Visibility = Visibility.Visible;
+            }
         }
 
-        delegate void labelHideDelegate();
+        _ = MainWindow.GetEmbeddedSubtitleTracks();//getting embedded subtitles(if there are any), discard, so that doesnt throw async warnings
+
+        string[] fileNames = filePath.Split("\\");
+        string fileName = fileNames[fileNames.Length - 1];
+
+        string mediaDurationString = Utilities.GetMediaDurationString(media.Duration);
+
+        MainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
+        MainWindow.TopOverlayFilenameText.Text = fileName;
+        MainWindow.TopOverlayDurationText.Text = mediaDurationString;
+        MainWindow.isPlaying = true;
+
+        Timer labelsTimer = new(5000);
+        labelsTimer.Elapsed += (sender, e) =>
+        {
+            MainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
+            {
+                MainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
+                MainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
+            }));
+        };
+        labelsTimer.Start();
     }
+
+    public void LoadSubtitleFile()
+    {
+        if (MainWindow.currentMedia is null)
+        {
+            Debug.WriteLine("Cannot load subtitle file, because no media is playing!");
+            return;
+        }
+
+        OpenFileDialog ofd = new()
+        {
+            Multiselect = false,
+            DefaultExt = ".srt",
+            Filter = "Subtitle files|*.srt;*.sub;*."
+        };
+
+        bool? result = ofd.ShowDialog();
+
+        if (result == false)
+        {
+            Debug.WriteLine("Subtitle file selection canceled/was unsuccessful");
+            return;
+        }
+
+        string subtitlePath = ofd.FileName;
+        if (!File.Exists(subtitlePath))
+        {
+            Debug.WriteLine("Subtitle file not found!");
+            return;
+        }
+        SubtitlesParser.Classes.Parsers.SubParser parser = new();
+        List<SubtitleItem> items = [];
+
+        using (FileStream fileStream = File.OpenRead(subtitlePath))
+        {
+            try
+            {
+                SubtitlesFormat mostLikelyFormat = parser.GetMostLikelyFormat(subtitlePath);
+                items = parser.ParseStream(fileStream, Encoding.UTF8, mostLikelyFormat);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error parsing subtitle file: " + ex.Message);
+                return;
+            }
+        }
+        MainWindow.currentExternalSubtitles = items;
+
+        int lastTag = 1;
+        if (MainWindow.currentSubtitles.Count > 0)
+        {
+            Debug.WriteLine("Existing subtitle tracks found, determining last tag..."); //making sure the external subtitles are added BEHIND the embedded ones
+            lastTag = MainWindow.currentSubtitles.MaxBy(t => t.Tag)!.Tag;
+        }
+        MainWindow.SubtitleTrack subtitleTrack = new(lastTag, "external", false)
+        {
+            SubtitleItems = items
+        };
+        MainWindow.currentSubtitles.Add(subtitleTrack);
+        Debug.WriteLine("current subtitle count: " + MainWindow.currentSubtitles.Count);
+
+        MainWindow.GenerateSubtitleTracks();
+
+        MainWindow.mainMediaPlayer.SetSpu(-1);//disabling embedded subtitles
+
+        Timer subUpdateTimer = new(100)
+        {
+            AutoReset = true
+        };
+        subUpdateTimer.Elapsed += SubtitleUpdateCall;
+        subUpdateTimer.Start();
+        MainWindow.activeTimers.Add(subUpdateTimer);
+    }
+    public void SubtitleUpdateCall(object? sender, ElapsedEventArgs e)
+    {
+        if (MainWindow.currentMedia != null && MainWindow.isPlaying)
+        {
+            MainWindow.SubtitleDisplay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SubUpdateDelegate(SubtitleUpdate));
+        }
+    }
+    public delegate void SubUpdateDelegate();
+    private void SubtitleUpdate()
+    {
+        double position = Convert.ToDouble(MainWindow.mainMediaPlayer.Position);
+        long duration = MainWindow.mainMediaPlayer.Media!.Duration;
+
+        long actualPosition = Convert.ToInt64(Convert.ToDouble(duration) * position);
+
+        foreach (SubtitleItem subtitle in MainWindow.currentExternalSubtitles)
+        {
+            if (actualPosition >= subtitle.StartTime && actualPosition <= subtitle.EndTime)
+            {
+                MainWindow.SubtitleDisplay.Visibility = Visibility.Visible;
+                MainWindow.SubtitleDisplay.Text = string.Join("\n", subtitle.Lines);
+                return;
+            }
+        }
+        MainWindow.SubtitleDisplay.Visibility = Visibility.Hidden;
+    }
+
+    delegate void labelHideDelegate();
 }
