@@ -7,8 +7,8 @@ namespace ADMP.Handlers
     public class BottomBarHandler
     {
         MainWindow MainWindow { get; set; }
-        int originalVolume;
-        bool isMuted = false;
+        int _originalVolume;
+        bool _isMuted = false;
 
         public BottomBarHandler(MainWindow mainWindow)
         {
@@ -44,19 +44,19 @@ namespace ADMP.Handlers
 
         public void MuteUnmuteVideoPlayer()
         {
-            if (!isMuted)//muting
+            if (!_isMuted)//muting
             {
-                isMuted = true;
+                _isMuted = true;
                 MainWindow.VolumeSlider.IsEnabled = false;
-                originalVolume = MainWindow.mainMediaPlayer.Volume;
+                _originalVolume = MainWindow.mainMediaPlayer.Volume;
                 MainWindow.mainMediaPlayer.Volume = 0;
                 MainWindow.MuteButtonImage.Source = new BitmapImage(new Uri("icons/unmute_btn.png", UriKind.Relative));
             }
             else//unmuting
             {
-                isMuted = false;
+                _isMuted = false;
                 MainWindow.VolumeSlider.IsEnabled = true;
-                MainWindow.mainMediaPlayer.Volume = originalVolume;
+                MainWindow.mainMediaPlayer.Volume = _originalVolume;
                 MainWindow.MuteButtonImage.Source = new BitmapImage(new Uri("icons/mute_btn.png", UriKind.Relative));
 
             }

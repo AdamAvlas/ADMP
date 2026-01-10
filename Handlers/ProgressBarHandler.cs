@@ -7,8 +7,8 @@ namespace ADMP.Handlers
     public class ProgressBarHandler
     {
         MainWindow MainWindow { get; set; }
-        bool isDragging = false;
-        bool isBeingUpdated = false;
+        bool _isDragging = false;
+        bool _isBeingUpdated = false;
 
         public ProgressBarHandler(MainWindow mainWindow)
         {
@@ -39,29 +39,29 @@ namespace ADMP.Handlers
 
             double sliderPosition = Convert.ToDouble(MainWindow.mainMediaPlayer.Position) * 10;
 
-            if (!isDragging)
+            if (!_isDragging)
             {
-                isBeingUpdated = true;
+                _isBeingUpdated = true;
                 MainWindow.ProgressBarSlider.Value = sliderPosition;
-                isBeingUpdated = false;
+                _isBeingUpdated = false;
             }
             MainWindow.ProgressBarTimer.Text = $"{timeElapsedString}/{durationString}";
         }
 
         public void SliderDragEnter()
         {
-            isDragging = true;
+            _isDragging = true;
             Debug.WriteLine("Dragging started...");
         }
         public void SliderDragLeave()
         {
             float playerNewPosition = Convert.ToSingle(MainWindow.ProgressBarSlider.Value) / 10;
             MainWindow.mainMediaPlayer.Position = playerNewPosition;
-            isDragging = false;
+            _isDragging = false;
         }
         public void SliderValueChanged()
         {
-            if (!isDragging && !isBeingUpdated)
+            if (!_isDragging && !_isBeingUpdated)
             {
                 float playerNewPosition = Convert.ToSingle(MainWindow.ProgressBarSlider.Value) / 10;
                 MainWindow.mainMediaPlayer.Position = playerNewPosition;
