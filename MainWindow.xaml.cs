@@ -35,8 +35,8 @@ namespace ADMP
         {
             InitializeComponent();
 
-            this.MainVideoPlayer.MediaPlayer = new MediaPlayer(libVLC);
-            mainMediaPlayer = this.MainVideoPlayer.MediaPlayer;
+            MainVideoPlayer.MediaPlayer = new MediaPlayer(libVLC);
+            mainMediaPlayer = MainVideoPlayer.MediaPlayer;
 
             bottomBarHandler = new BottomBarHandler(this);
             topMenuHandler = new TopMenuHandler(this, mainMediaPlayer);
@@ -48,7 +48,6 @@ namespace ADMP
             {
                 mainMediaPlayer.Volume = (int)settingsHandler.AppSettings.VolumeLevel!;
                 VolumeSlider.Value = Convert.ToDouble(mainMediaPlayer.Volume) / 10;
-
             }
             else
             {

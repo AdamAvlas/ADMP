@@ -20,7 +20,7 @@ namespace ADMP.Handlers
     public class TopMenuHandler
     {
         MainWindow MainWindow { get; set; }
-        LibVLCSharp.Shared.MediaPlayer MediaPlayer { get; set; }
+        LibVLCSharp.Shared.MediaPlayer MediaPlayer { get; set; }//has to be set this explicitly, because MediaPlayer is an ambiguous object/class
 
         public TopMenuHandler(MainWindow mainWindow, LibVLCSharp.Shared.MediaPlayer mediaPlayer)
         {
