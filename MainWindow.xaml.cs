@@ -1,4 +1,5 @@
 ﻿using ADMP.Handlers;
+using ADMP.Utils;
 using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
 using SubtitlesParser.Classes;
@@ -62,10 +63,10 @@ public partial class MainWindow : Window
             foreach (string item in settingsHandler.AppSettings.LastOpened)
             {
                 MenuItem menuItem = new() { Header = item, Tag = tag };
-                menuItem.Click += (s, e) =>
+                menuItem.Click += async (s, e) =>
                 {
                     Debug.WriteLine("Opening recent file: " + item);
-                    topMenuHandler.OpenFile(item);
+                    await topMenuHandler.OpenFile(item);
                 };
 
                 RecentlyOpenedList.Items.Insert(0, menuItem);
@@ -99,6 +100,33 @@ public partial class MainWindow : Window
             AppQuit(s, e);
         };
     }
+
+    public void SetLabels(string filePath, long fileLength)
+    {
+        string[] fileNames = filePath.Split("\\");
+        string fileName = fileNames[fileNames.Length - 1];
+
+        ProgressBarTimer.Visibility = Visibility.Visible;
+
+        PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative));
+
+        TopOverlayFilenameText.Visibility = Visibility.Visible;
+        TopOverlayFilenameText.Text = fileName;
+        TopOverlayDurationText.Visibility = Visibility.Visible;
+        TopOverlayDurationText.Text = Utilities.GetMediaDurationString(fileLength);
+    }
+
+    public async Task HideLabels()
+    {
+        await Task.Delay(5000);
+        Dispatcher.Invoke(() =>//because this is called from a non-ui thread, and without a dispatcher it wont do anything
+        {
+            Debug.WriteLine("Hiding top overlay labels...");
+            TopOverlayFilenameText.Visibility = Visibility.Hidden;
+            TopOverlayDurationText.Visibility = Visibility.Hidden;
+        });
+    }
+
     public async Task GetEmbeddedSubtitleTracks()
     {
         await Task.Delay(1000);
@@ -176,7 +204,7 @@ public partial class MainWindow : Window
 
     private void TopMenuOpenFile(object sender, RoutedEventArgs e)
     {
-        topMenuHandler.OpenFile();
+        _ = topMenuHandler.OpenFile();//fire and forget async generally isn't ideal, but since this method is an event handler, no other apparent option was found
     }
 
     private void TopMenuOpenSettings(object sender, RoutedEventArgs e)
@@ -311,10 +339,10 @@ public partial class MainWindow : Window
             .DefaultIfEmpty(0)
             .Max();//linq for getting the largest, and therefore last tag
         MenuItem menuItem = new() { Header = filePath, Tag = lastTag + 1 };
-        menuItem.Click += (s, e) =>
+        menuItem.Click += async (s, e) =>
         {
             Debug.WriteLine("Opening recent file: " + filePath);
-            topMenuHandler.OpenFile(filePath);
+            await topMenuHandler.OpenFile(filePath);
         };
         RecentlyOpenedList.Items.Insert(0, menuItem);
     }
