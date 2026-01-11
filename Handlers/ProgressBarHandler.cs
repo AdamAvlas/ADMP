@@ -12,7 +12,7 @@ public class ProgressBarHandler
 
     public ProgressBarHandler(MainWindow mainWindow)
     {
-        this.MainWindow = mainWindow;
+        MainWindow = mainWindow;
     }
 
     public void UpdateProgressBar()
@@ -55,7 +55,7 @@ public class ProgressBarHandler
     }
     public void SliderDragLeave()
     {
-        float playerNewPosition = Convert.ToSingle(MainWindow.ProgressBarSlider.Value) / 10;
+        float playerNewPosition = Convert.ToSingle(MainWindow.ProgressBarSlider.Value) / 10;//because MediaPlayer.Position must be from 0 to 1
         MainWindow.mainMediaPlayer.Position = playerNewPosition;
         _isDragging = false;
     }
