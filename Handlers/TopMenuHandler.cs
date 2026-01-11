@@ -28,7 +28,7 @@ public class TopMenuHandler
         MediaPlayer = mediaPlayer;
     }
 
-    public async void OpenFile(string? filePath = null)//function has an optional parameter, if the filepath isnt sepcified, it opens an open file dialog
+    public async Task OpenFile(string? filePath = null)//function has an optional parameter, if the filepath isnt sepcified, it opens an open file dialog
     {
         Debug.WriteLine("Attempting to open file...");
         bool wasFilePathSet = true;//so that I know whether the filepath was set from ofd or not
@@ -68,6 +68,7 @@ public class TopMenuHandler
         await media.Parse();
 
         MediaPlayer.Play(media);
+        MainWindow.isPlaying = true;
 
         if (!wasFilePathSet)//adding to recent files, BUT only if it's not already being opened from the recent file list
         {
@@ -89,28 +90,10 @@ public class TopMenuHandler
             }
         }
 
-        _ = MainWindow.GetEmbeddedSubtitleTracks();//getting embedded subtitles(if there are any), discard, so that doesnt throw async warnings
-
-        string[] fileNames = filePath.Split("\\");
-        string fileName = fileNames[fileNames.Length - 1];
-
-        string mediaDurationString = Utilities.GetMediaDurationString(media.Duration);
-
-        MainWindow.PlayPauseButtonImage.Source = new BitmapImage(new Uri("icons/pause_btn.png", UriKind.Relative)); ;
-        MainWindow.TopOverlayFilenameText.Text = fileName;
-        MainWindow.TopOverlayDurationText.Text = mediaDurationString;
-        MainWindow.isPlaying = true;
-
-        Timer labelsTimer = new(5000);
-        labelsTimer.Elapsed += (sender, e) =>
-        {
-            MainWindow.TopOverlay.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new labelHideDelegate(() =>
-            {
-                MainWindow.TopOverlayFilenameText.Visibility = Visibility.Hidden;
-                MainWindow.TopOverlayDurationText.Visibility = Visibility.Hidden;
-            }));
-        };
-        labelsTimer.Start();
+        MainWindow.SetLabels(filePath, media.Duration);
+        
+        await MainWindow.GetEmbeddedSubtitleTracks();
+        await Task.Run(MainWindow.HideLabels);
     }
 
     public void LoadSubtitleFile()
