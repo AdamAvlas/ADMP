@@ -9,6 +9,7 @@ public class BottomBarHandler
     MainWindow MainWindow { get; set; }
     int _originalVolume;
     bool _isMuted = false;
+    const float SkipInterval = 10000f; //10 seconds in milliseconds
 
     public BottomBarHandler(MainWindow mainWindow)
     {
@@ -88,7 +89,7 @@ public class BottomBarHandler
         }
 
         float currentPosition = MainWindow.mainMediaPlayer.Position;
-        float newPosition = currentPosition + 10000f / MainWindow.currentMedia!.Duration;//null-forgiving operator cause if media is null, the code doesnt even reach this point
+        float newPosition = currentPosition + SkipInterval / MainWindow.currentMedia!.Duration;//null-forgiving operator cause if media is null, the code doesnt even reach this point
         if (newPosition <= 1f)
         {
             MainWindow.mainMediaPlayer.Position = newPosition;
@@ -103,7 +104,7 @@ public class BottomBarHandler
         }
 
         float currentPosition = MainWindow.mainMediaPlayer.Position;
-        float newPosition = currentPosition - 10000f / MainWindow.currentMedia!.Duration;
+        float newPosition = currentPosition - SkipInterval / MainWindow.currentMedia!.Duration;
         if (newPosition >= 0f)
         {
             MainWindow.mainMediaPlayer.Position = newPosition;
